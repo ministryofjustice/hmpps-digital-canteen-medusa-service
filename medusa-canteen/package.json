@@ -6,19 +6,15 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "npm run dev --workspace=@dtc/backend",
-    "build": "npm run build --workspace=@dtc/backend",
-    "start": "npm run start --workspace=@dtc/backend",
+    "dev": "cd backend && npm run dev",
+    "build": "cd backend && npm run build",
+    "start": "cd backend && npm run start",
     "test": "npm run test --workspace=@dtc/backend",
     "seed": "npm run seed --workspace=@dtc/backend"
   },
   "devDependencies": {
     "prettier": "^3.2.5"
   },
-  "workspaces": [
-    "apps/**",
-    "!apps/backend/.medusa/**"
-  ],
   "overrides": {
     "ajv": "^8.0.0"
   }
