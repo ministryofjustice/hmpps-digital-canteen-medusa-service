@@ -15,6 +15,10 @@ const getDatabaseUrl = (): string => {
     DB_PORT = '5432'
   } = process.env
 
+  if (process.env.NODE_ENV === "test" || process.env.CI) {
+    return "postgres://postgres:postgres@localhost:5432/postgres"
+  }
+
   if (!DB_USER || !DB_PASSWORD || !DB_SERVER || !DB_NAME) {
     throw new Error('Database configuration missing. Required: DB_USER, DB_PASSWORD, DB_SERVER, DB_NAME')
   }
@@ -26,9 +30,9 @@ module.exports = defineConfig({
   projectConfig: {
     databaseUrl: getDatabaseUrl(),
     http: {
-      storeCors: process.env.STORE_CORS!,
-      adminCors: process.env.ADMIN_CORS!,
-      authCors: process.env.AUTH_CORS!,
+      storeCors: process.env.STORE_CORS || "*",
+      adminCors: process.env.ADMIN_CORS || "*",
+      authCors: process.env.AUTH_CORS || "*",
       jwtSecret: process.env.JWT_SECRET || "supersecret",
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     }
