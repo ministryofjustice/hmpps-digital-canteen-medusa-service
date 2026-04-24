@@ -1,10 +1,16 @@
-import { loadEnv, defineConfig } from '@medusajs/framework/utils'
+import { loadEnv, defineConfig } from "@medusajs/framework/utils"
 
-loadEnv(process.env.NODE_ENV || 'development', process.cwd())
+loadEnv(process.env.NODE_ENV || "development", process.cwd())
+
+const isBuildTime = process.env.CI === "true"
 
 const getDatabaseUrl = (): string => {
   if (process.env.DATABASE_URL) {
     return process.env.DATABASE_URL
+  }
+
+  if (isBuildTime) {
+    return "postgres://postgres:postgres@localhost:5432/postgres"
   }
 
   const {
@@ -12,12 +18,8 @@ const getDatabaseUrl = (): string => {
     DB_PASSWORD,
     DB_SERVER,
     DB_NAME,
-    DB_PORT = '5432'
+    DB_PORT = "5432",
   } = process.env
-
-  if (process.env.NODE_ENV === "test" || process.env.CI) {
-    return "postgres://postgres:postgres@localhost:5432/postgres"
-  }
 
   if (!DB_USER || !DB_PASSWORD || !DB_SERVER || !DB_NAME) {
     throw new Error('Database configuration missing. Required: DB_USER, DB_PASSWORD, DB_SERVER, DB_NAME')
@@ -39,5 +41,5 @@ module.exports = defineConfig({
   },
   admin: {
     disable: true,
-  }
+  },
 })
