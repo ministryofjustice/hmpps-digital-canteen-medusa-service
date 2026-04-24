@@ -1,10 +1,10 @@
-import { loadEnv, defineConfig } from "@medusajs/framework/utils"
+const { loadEnv, defineConfig } = require("@medusajs/framework/utils")
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
 const isBuildTime = process.env.CI === "true"
 
-const getDatabaseUrl = (): string => {
+const getDatabaseUrl = () => {
   if (process.env.DATABASE_URL) {
     return process.env.DATABASE_URL
   }
@@ -28,7 +28,7 @@ const getDatabaseUrl = (): string => {
   return `postgres://${DB_USER}:${DB_PASSWORD}@${DB_SERVER}:${DB_PORT}/${DB_NAME}`
 }
 
-export default defineConfig({
+module.exports = defineConfig({
   projectConfig: {
     databaseUrl: getDatabaseUrl(),
     http: {
