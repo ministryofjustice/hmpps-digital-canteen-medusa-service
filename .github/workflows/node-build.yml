@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Use Node.js ${{ 20 }}
+      - name: Use Node.js 20
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
-          node-version-file: ${{ 20 }}
+          node-version-file: .nvmrc
       - name: update npm
         shell: bash
         run: |
@@ -29,9 +29,8 @@ jobs:
           cache-name: node-modules
         with:
           path: |
-            ./node_modules
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '!**/node_modules/**') }}
+            .backend/node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('backend/package-lock.json') }}
       - name: install dependencies
         if: steps.restore-cache.outputs.cache-hit != 'true'
         shell: bash
@@ -39,15 +38,14 @@ jobs:
       - name: build npm
         shell: bash
         run: |
+          cd backend
           npm run build
       - name: upload the artifacts
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: npm_build_artifacts
           path: |
-            build/
-            dist/
-            assets/stylesheets/
+            backend/.medusa/
       - name: save cache
         id: save-cache
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -55,6 +53,5 @@ jobs:
           cache-name: node-modules
         with:
           path: |
-            ./node_modules
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '!**/node_modules/**') }}
+            ./backend/node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('backend/package-lock.json') }}
