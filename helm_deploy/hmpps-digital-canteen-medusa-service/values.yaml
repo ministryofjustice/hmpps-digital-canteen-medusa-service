@@ -1,0 +1,43 @@
+generic-service:
+  nameOverride: hmpps-digital-canteen-medusa-service
+  productId: "DPS128"
+
+  replicaCount: 4
+
+  image:
+    repository: ghcr.io/ministryofjustice/hmpps-digital-canteen-medusa-service
+    tag: app_version # override at deployment time
+    port: 9000
+
+  ingress:
+    enabled: true
+    host: app-hostname.local # override per environment
+    tlsSecretName: hmpps-digital-canteen-api-cert
+
+  # Environment variables to load into the deployment
+  env:
+    NODE_ENV: "production"
+    PORT: "9000"
+    APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
+
+
+  # Pre-existing kubernetes secrets to load as environment variables in the deployment.
+  # namespace_secrets:
+  #   [name of kubernetes secret]:
+  #     [name of environment variable as seen by app]: [key of kubernetes secret to load]
+
+  namespace_secrets:
+    hmpps-digital-canteen-api-application-insights:
+      APPLICATIONINSIGHTS_CONNECTION_STRING: "APPLICATIONINSIGHTS_CONNECTION_STRING"
+    rds-postgresql-instance-output:
+      DB_SERVER: "rds_instance_endpoint"
+      DB_NAME: "database_name"
+      DB_USER: "database_username"
+      DB_PASSWORD: "database_password"
+
+  allowlist:
+    groups:
+      - internal
+
+generic-prometheus-alerts:
+  targetApplication: hmpps-digital-canteen-medusa-service
