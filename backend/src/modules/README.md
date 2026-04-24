@@ -60,7 +60,7 @@ export default Module(BLOG_MODULE, {
 
 ## 4. Add Module to Medusa's Configurations
 
-To start using the module, add it to `medusa-config.js`:
+To start using the module, add it to `medusa-config.ts`:
 
 ```ts
 module.exports = defineConfig({
