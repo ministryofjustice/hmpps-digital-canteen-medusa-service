@@ -1,0 +1,14 @@
+name: Build and push docker image to registry
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  build:
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2
+    with:
+      docker_registry: ghcr.io
+      registry_org: ministryofjustice
+      push: false
+      docker_multiplatform: false
