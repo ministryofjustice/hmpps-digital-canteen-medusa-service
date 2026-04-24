@@ -28,7 +28,7 @@ const getDatabaseUrl = (): string => {
   return `postgres://${DB_USER}:${DB_PASSWORD}@${DB_SERVER}:${DB_PORT}/${DB_NAME}`
 }
 
-module.exports = defineConfig({
+export default defineConfig({
   projectConfig: {
     databaseUrl: getDatabaseUrl(),
     http: {
