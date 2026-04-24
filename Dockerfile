@@ -10,11 +10,6 @@ RUN npm install --legacy-peer-deps
 
 COPY backend ./
 
-RUN echo "=== Checking for config file ===" && \
-    ls -la medusa-config.* && \
-    echo "=== Config file content ===" && \
-    cat medusa-config.js || cat medusa-config.ts || echo "No config file found!"
-
 RUN npm run build
 
 FROM node:20-alpine
@@ -23,7 +18,7 @@ WORKDIR /app
 
 COPY --from=builder /app ./
 
-RUN npm ci --legacy-peer-deps && \
+RUN npm ci --legacy-peer-deps --omit=dev && \
     npm cache clean --force
 
 EXPOSE 9000
