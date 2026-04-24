@@ -29,15 +29,15 @@ jobs:
     secrets: inherit
     with:
       install_command: 'npm run setup'
-#  helm_lint:
-#    strategy:
-#      matrix:
-#        environments: ['dev', 'preprod', 'prod']
-#    name: helm lint
-#    uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
-#    secrets: inherit
-#    with:
-#      environment: ${{ matrix.environments }}
+  helm_lint:
+    strategy:
+      matrix:
+        environments: ['dev', 'preprod', 'prod']
+    name: helm lint
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
+    secrets: inherit
+    with:
+      environment: ${{ matrix.environments }}
   build:
     name: Build docker image from hmpps-github-actions
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
@@ -45,7 +45,7 @@ jobs:
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
       additional_docker_tag: ${{ inputs.additional_docker_tag }}
-      push: ${{ inputs.push || true }}
+      push: ${{ github.event_name == 'workflow_dispatch' && inputs.push || true }}
       docker_multiplatform: false
   deploy_dev:
     name: Deploy to the dev environment
