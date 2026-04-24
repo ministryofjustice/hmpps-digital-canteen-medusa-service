@@ -2,10 +2,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY hmpps-digital-canteen-medusa-service/backend/package*.json ./
+COPY backend/package*.json ./
 RUN npm install --legacy-peer-deps
 
-COPY hmpps-digital-canteen-medusa-service/backend ./
+COPY backend ./
 
 RUN npm run build
 

@@ -34,6 +34,6 @@ module.exports = defineConfig({
     }
   },
   admin: {
-    disable: process.env.DISABLE_ADMIN === 'true',
+    disable: true,
   }
 })
