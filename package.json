@@ -6,6 +6,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "setup": "cd backend && npm ci --legacy-peer-deps",
     "dev": "cd backend && npm run dev",
     "build": "cd backend && npm run build",
     "start": "cd backend && npm run start",
