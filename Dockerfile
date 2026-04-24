@@ -10,6 +10,11 @@ RUN npm install --legacy-peer-deps
 
 COPY backend ./
 
+RUN echo "=== Checking for config file ===" && \
+    ls -la medusa-config.* && \
+    echo "=== Config file content ===" && \
+    cat medusa-config.js || cat medusa-config.ts || echo "No config file found!"
+
 RUN npm run build
 
 FROM node:20-alpine
