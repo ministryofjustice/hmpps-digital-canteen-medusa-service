@@ -9,10 +9,13 @@ Run
 
 Add .env to apps/backend (ask for details)
 
-Run from apps/backend
+Run from medusa-canteen
 
     npm install 
     npm run build
+
+Run from apps/backend
+
     npx medusa db:migrate 
     npx medusa user --email admin@admin.com --password supersecret 
 
