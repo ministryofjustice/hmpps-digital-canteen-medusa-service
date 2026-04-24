@@ -45,7 +45,7 @@ jobs:
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
       additional_docker_tag: ${{ inputs.additional_docker_tag }}
-      push: ${{ github.event_name == 'workflow_dispatch' && inputs.push || true }}
+      push: true
       docker_multiplatform: false
   deploy_dev:
     name: Deploy to the dev environment
