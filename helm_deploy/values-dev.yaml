@@ -8,7 +8,6 @@ generic-service:
     host: digital-canteen-medusa-dev.prison.service.justice.gov.uk
 
   env:
-    APPLICATIONINSIGHTS_CONFIGURATION_FILE: "applicationinsights.dev.json"
     HMPPS_AUTH_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
 
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
