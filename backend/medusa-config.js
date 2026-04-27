@@ -27,7 +27,7 @@ const getDatabaseUrl = () => {
     throw new Error('Database configuration missing. Required: DB_USER, DB_PASSWORD, DB_SERVER, DB_NAME')
   }
 
-  const dbUrl = `postgres://${DB_USER}:${DB_PASSWORD}@${DB_SERVER}:${DB_PORT}/${DB_NAME}?sslmode=require`;
+  const dbUrl = `postgres://${DB_USER}:${DB_PASSWORD}@${DB_SERVER}:${DB_PORT}/${DB_NAME}`;
   console.log(`Using database AWS URL:`);
   return dbUrl;
 }
