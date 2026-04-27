@@ -10,6 +10,7 @@ const getDatabaseUrl = () => {
   }
 
   if (isBuildTime) {
+    console.log("Using default database URL for build time")
     return "postgres://postgres:postgres@localhost:5432/postgres"
   }
 
@@ -22,9 +23,11 @@ const getDatabaseUrl = () => {
   } = process.env
 
   if (!DB_USER || !DB_PASSWORD || !DB_SERVER || !DB_NAME) {
+    console.log("Database configuration missing. Required: DB_USER, DB_PASSWORD, DB_SERVER, DB_NAME")
     throw new Error('Database configuration missing. Required: DB_USER, DB_PASSWORD, DB_SERVER, DB_NAME')
   }
 
+  console.log("Using database URL:", `postgres://${DB_USER}:${DB_PASSWORD}@${DB_SERVER}:${DB_PORT}/${DB_NAME}`)
   return `postgres://${DB_USER}:${DB_PASSWORD}@${DB_SERVER}:${DB_PORT}/${DB_NAME}`
 }
 
