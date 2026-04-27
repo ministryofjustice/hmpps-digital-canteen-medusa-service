@@ -8,7 +8,6 @@ COPY backend/package*.json ./
 RUN npm install --legacy-peer-deps
 
 COPY backend ./
-
 RUN npm run build
 
 FROM node:20-alpine
@@ -26,5 +25,6 @@ RUN npm ci --legacy-peer-deps --omit=dev && \
     npm cache clean --force
 
 EXPOSE 9000
+USER 2000
 
 CMD ["npm", "run", "start"]
