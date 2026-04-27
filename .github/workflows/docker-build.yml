@@ -10,5 +10,6 @@ jobs:
     with:
       docker_registry: ghcr.io
       registry_org: ministryofjustice
-      push: false
+      push: true
       docker_multiplatform: false
+      download_build_artifacts: true
