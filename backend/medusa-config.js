@@ -27,22 +27,14 @@ const getDatabaseUrl = () => {
     throw new Error('Database configuration missing. Required: DB_USER, DB_PASSWORD, DB_SERVER, DB_NAME')
   }
 
-  console.log("Using database AWS URL:")
-  return `postgres://${DB_USER}:${DB_PASSWORD}@${DB_SERVER}:${DB_PORT}/${DB_NAME}`
+  const dbUrl = `postgres://${DB_USER}:${DB_PASSWORD}@${DB_SERVER}:${DB_PORT}/${DB_NAME}?sslmode=require`;
+  console.log(`Using database AWS URL:`);
+  return dbUrl;
 }
 
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: getDatabaseUrl(),
-    databaseDriverOptions: {
-      connection: {
-        ssl: process.env.NODE_ENV === "production"
-            ? {
-              rejectUnauthorized: false, // AWS RDS requirement
-            }
-            : false,
-      },
-    },
     http: {
       storeCors: process.env.STORE_CORS || "*",
       adminCors: process.env.ADMIN_CORS || "*",

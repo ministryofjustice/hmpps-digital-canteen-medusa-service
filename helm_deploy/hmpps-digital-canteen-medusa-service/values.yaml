@@ -26,7 +26,7 @@ generic-service:
 
   namespace_secrets:
     rds-postgresql-instance-output:
-      DB_SERVER: "rds_instance_endpoint"
+      DB_SERVER: "rds_instance_address"
       DB_NAME: "database_name"
       DB_USER: "database_username"
       DB_PASSWORD: "database_password"
