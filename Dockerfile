@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN npm install --legacy-peer-deps
 COPY backend ./
 RUN npm run build
 
-FROM node:20-alpine
+FROM node:20-bookworm-slim
 
 RUN addgroup --gid 2000 --system appgroup && \
     adduser --uid 2000 --system appuser --gid 2000
