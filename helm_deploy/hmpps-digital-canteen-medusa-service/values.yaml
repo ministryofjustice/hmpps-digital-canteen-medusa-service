@@ -9,20 +9,28 @@ generic-service:
     tag: app_version # override at deployment time
     port: 9000
 
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
   ingress:
     enabled: true
     host: app-hostname.local # override per environment
     tlsSecretName: hmpps-digital-canteen-medusa-cert
 
-  # Environment variables to load into the deployment
   env:
     NODE_ENV: "production"
     PORT: "9000"
-
-  # Pre-existing kubernetes secrets to load as environment variables in the deployment.
-  # namespace_secrets:
-  #   [name of kubernetes secret]:
-  #     [name of environment variable as seen by app]: [key of kubernetes secret to load]
 
   namespace_secrets:
     rds-postgresql-instance-output:
