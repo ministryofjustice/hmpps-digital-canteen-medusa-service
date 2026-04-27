@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'test'
+
   workflow_dispatch:
     inputs:
       additional_docker_tag:
@@ -39,3 +40,12 @@ jobs:
       registry_org: 'ministryofjustice'
       push: ${{ inputs.push || inputs.push == null }}
       docker_multiplatform: false
+
+  deploy_dev:
+    name: Deploy to the development environment
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
+    secrets: inherit
+    with:
+      environment: 'dev'
+      app_version: '${{ needs.build.outputs.app_version }}'
+      slack_notification: 'false' # if 'true', it needs a valid NONPROD_RELEASES_SLACK_CHANNEL variable to be set
