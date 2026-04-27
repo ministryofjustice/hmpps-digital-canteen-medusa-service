@@ -13,6 +13,9 @@ RUN npm run build
 
 FROM node:20-alpine
 
+RUN addgroup --gid 2000 --system appgroup && \
+    adduser --uid 2000 --system appuser --gid 2000
+
 WORKDIR /app
 
 ENV NODE_ENV=production
