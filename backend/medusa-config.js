@@ -35,6 +35,14 @@ const getDatabaseUrl = () => {
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: getDatabaseUrl(),
+    databaseDriverOptions: {
+      connection: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      },
+    },
     http: {
       storeCors: process.env.STORE_CORS || "*",
       adminCors: process.env.ADMIN_CORS || "*",
