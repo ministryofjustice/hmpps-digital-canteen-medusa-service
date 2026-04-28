@@ -1,0 +1,22 @@
+{
+  "name": "hmpps-digital-canteen-medusa-service",
+  "private": false,
+  "packageManager": "npm@11.8.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "setup": "cd backend && npm ci --legacy-peer-deps",
+    "dev": "cd backend && npm run dev",
+    "build": "cd backend && npm run build",
+    "start": "cd backend && npm run start",
+    "test": "npm run test --workspace=@dtc/backend",
+    "seed": "npm run seed --workspace=@dtc/backend",
+    "lint": "eslint . --cache --max-warnings 0",
+    "lint-fix": "echo 'Linting skipped for now' && exit 0"
+  },
+  "devDependencies": {
+    "@ministryofjustice/eslint-config-hmpps": "^1.0.3",
+    "prettier": "^3.2.5"
+  }
+}

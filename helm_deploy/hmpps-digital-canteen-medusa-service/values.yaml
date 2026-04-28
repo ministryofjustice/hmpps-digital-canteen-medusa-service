@@ -1,0 +1,47 @@
+generic-service:
+  nameOverride: hmpps-digital-canteen-medusa-service
+  productId: "DPS128"
+
+  replicaCount: 4
+
+  image:
+    repository: ghcr.io/ministryofjustice/hmpps-digital-canteen-medusa-service
+    tag: app_version # override at deployment time
+    port: 9000
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  ingress:
+    enabled: true
+    host: app-hostname.local # override per environment
+    tlsSecretName: hmpps-digital-canteen-medusa-cert
+
+  env:
+    NODE_ENV: "production"
+    PORT: "9000"
+
+  namespace_secrets:
+    rds-postgresql-instance-output:
+      DB_SERVER: "rds_instance_address"
+      DB_NAME: "database_name"
+      DB_USER: "database_username"
+      DB_PASSWORD: "database_password"
+
+  allowlist:
+    groups:
+      - internal
+
+generic-prometheus-alerts:
+  targetApplication: hmpps-digital-canteen-medusa-service
