@@ -13,15 +13,19 @@ generic-service:
     httpGet:
       path: /health
       port: http
-    initialDelaySeconds: 30
+    initialDelaySeconds: 180
     periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
 
   readinessProbe:
     httpGet:
       path: /health
       port: http
-    initialDelaySeconds: 30
+    initialDelaySeconds: 120
     periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
 
   ingress:
     enabled: true
