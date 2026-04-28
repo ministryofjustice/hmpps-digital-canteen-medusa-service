@@ -13,7 +13,7 @@
     "test": "npm run test --workspace=@dtc/backend",
     "seed": "npm run seed --workspace=@dtc/backend",
     "lint": "eslint . --cache --max-warnings 0",
-    "lint-fix": "echo 'Linting skipped for now' && exit 0"
+    "lint-fix": "eslint . --cache --max-warnings 0 --fix"
   },
   "devDependencies": {
     "@ministryofjustice/eslint-config-hmpps": "^1.0.3",
