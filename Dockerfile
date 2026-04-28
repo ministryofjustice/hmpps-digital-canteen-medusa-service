@@ -27,6 +27,12 @@ RUN npm install --legacy-peer-deps
 
 COPY backend/ ./
 
+# Set environment variables for build time
+ENV CI=true
+ENV DISABLE_MEDUSA_ADMIN=false
+ENV MEDUSA_BACKEND_URL=http://localhost:9000
+
+# Build with environment variables set
 RUN npm run build
 
 RUN ./node_modules/.bin/tsc instrumentation.ts --outDir . --skipLibCheck
