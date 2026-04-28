@@ -54,6 +54,12 @@ COPY --from=builder --chown=appuser:appgroup /app/instrumentation.js ./instrumen
 COPY --from=builder --chown=appuser:appgroup /app/build-info.json ./build-info.json
 COPY --from=builder --chown=appuser:appgroup /app/.medusa ./.medusa
 
+# Verify admin files are in final image
+RUN echo "=== Verifying admin in final image ===" && \
+    ls -la /app/.medusa/server/public/admin/index.html && \
+    echo "=== Admin files present in final image ===" || \
+    (echo "ERROR: Admin files missing from final image" && exit 1)
+
 RUN mkdir -p /home/appuser/.config && \
     chown -R appuser:appgroup /home/appuser /app
 
