@@ -52,11 +52,15 @@ jobs:
         with:
           path: |
             .backend/node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('backend/package-lock.json') }}
+            ./node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('/backend/package-lock.json', 'package-lock.json') }}
       - name: install dependencies
         if: steps.restore-cache.outputs.cache-hit != 'true'
         shell: bash
         run: "cd backend && npm ci --legacy-peer-deps"
+      - name: install root dependencies for linting
+        shell: bash
+        run: "npm ci"
       - name: build npm
         shell: bash
         run: |
@@ -80,7 +84,8 @@ jobs:
         with:
           path: |
             ./backend/node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('backend/package-lock.json') }}
+            ./node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('backend/package-lock.json', 'package-lock.json') }}
 
 #          TO DO: Add node unit tests and integration tests
 
@@ -103,6 +108,8 @@ jobs:
         environments: ['dev', 'preprod', 'prod']
     name: helm lint
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
+    needs:
+      - node_build
     secrets: inherit
     with:
       environment: ${{ matrix.environments }}
@@ -112,7 +119,8 @@ jobs:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
-#    needs:
+    needs:
+      - helm_lint
 #      - node_integration_tests
 #      - node_unit_tests
     with:
