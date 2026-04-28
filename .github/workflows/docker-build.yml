@@ -3,7 +3,7 @@ name: Build and push docker image to registry
 on:
   push:
     branches:
-      - 'test'
+      - 'main'
 
   workflow_dispatch:
     inputs:
