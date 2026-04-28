@@ -69,4 +69,4 @@ ENV PORT=9000
 ENV DISABLE_MEDUSA_TELEMETRY=true
 EXPOSE 9000
 
-CMD ["sh", "-c", "npm run db:migrate && npm run start"]
+CMD ["sh", "-c", "npm run db:migrate && cd /app/.medusa/server && medusa start"]
