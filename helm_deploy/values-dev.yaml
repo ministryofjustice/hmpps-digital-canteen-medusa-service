@@ -21,6 +21,11 @@ generic-service:
     medusa-secrets:
       JWT_SECRET: "jwt-secret"
       COOKIE_SECRET: "cookie-secret"
+    rds-postgresql-instance-output:
+      DB_SERVER: "rds_instance_address"
+      DB_NAME: "database_name"
+      DB_USER: "database_username"
+      DB_PASSWORD: "database_password"
 
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts
