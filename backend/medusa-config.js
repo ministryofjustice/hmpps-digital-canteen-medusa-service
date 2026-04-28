@@ -35,14 +35,14 @@ const getDatabaseUrl = () => {
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: getDatabaseUrl(),
-    databaseDriverOptions: {
-      connection: {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false,
-        },
-      },
-    },
+    // databaseDriverOptions: {
+    //   connection: {
+    //     ssl: {
+    //       require: true,
+    //       rejectUnauthorized: false,
+    //     },
+    //   },
+    // },
     http: {
       storeCors: process.env.STORE_CORS || "*",
       adminCors: process.env.ADMIN_CORS || "*",
@@ -52,6 +52,8 @@ module.exports = defineConfig({
     }
   },
   admin: {
-    disable: true,
+    disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
+    path: "/app",
+    backendUrl: process.env.MEDUSA_BACKEND_URL || "http://localhost:9000",
   },
 })

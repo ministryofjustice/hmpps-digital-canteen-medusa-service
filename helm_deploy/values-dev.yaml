@@ -8,7 +8,19 @@ generic-service:
     host: digital-canteen-medusa-dev.prison.service.justice.gov.uk
 
   env:
-    HMPPS_AUTH_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
+    NODE_ENV: "production"
+    PORT: "9000"
+    DISABLE_MEDUSA_ADMIN: "false"
+    MEDUSA_BACKEND_URL: "https://digital-canteen-medusa-dev.prison.service.justice.gov.uk"
+    ADMIN_CORS: "https://digital-canteen-medusa-dev.prison.service.justice.gov.uk"
+    STORE_CORS: "*"
+    AUTH_CORS: "https://digital-canteen-medusa-dev.prison.service.justice.gov.uk"
+    DISABLE_MEDUSA_TELEMETRY: "true"
+
+  namespace_secrets:
+    medusa-secrets:
+      JWT_SECRET: "jwt-secret"
+      COOKIE_SECRET: "cookie-secret"
 
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts

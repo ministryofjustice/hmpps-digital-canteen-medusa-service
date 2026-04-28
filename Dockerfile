@@ -46,6 +46,7 @@ RUN npm ci --legacy-peer-deps --omit=dev && \
 COPY --from=builder --chown=appuser:appgroup /app/medusa-config.js ./medusa-config.js
 COPY --from=builder --chown=appuser:appgroup /app/instrumentation.js ./instrumentation.js
 COPY --from=builder --chown=appuser:appgroup /app/build-info.json ./build-info.json
+COPY --from=builder --chown=appuser:appgroup /app/.medusa ./.medusa
 
 RUN mkdir -p /home/appuser/.config && \
     chown -R appuser:appgroup /home/appuser /app
