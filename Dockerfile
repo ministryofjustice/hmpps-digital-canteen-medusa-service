@@ -29,7 +29,7 @@ COPY backend/ ./
 
 ENV CI=true
 ENV DISABLE_MEDUSA_ADMIN=false
-ENV MEDUSA_BACKEND_URL=http://localhost:9000
+ENV MEDUSA_BACKEND_URL=""
 
 RUN npm run build
 
