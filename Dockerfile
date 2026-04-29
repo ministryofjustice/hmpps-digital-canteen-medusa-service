@@ -27,12 +27,10 @@ RUN npm install --legacy-peer-deps
 
 COPY backend/ ./
 
-# Set environment variables for build time
 ENV CI=true
 ENV DISABLE_MEDUSA_ADMIN=false
 ENV MEDUSA_BACKEND_URL=http://localhost:9000
 
-# Build with environment variables set
 RUN npm run build
 
 RUN ./node_modules/.bin/tsc instrumentation.ts --outDir . --skipLibCheck
@@ -53,7 +51,6 @@ COPY --from=builder --chown=appuser:appgroup /app/medusa-config.js ./medusa-conf
 COPY --from=builder --chown=appuser:appgroup /app/instrumentation.js ./instrumentation.js
 COPY --from=builder --chown=appuser:appgroup /app/build-info.json ./build-info.json
 COPY --from=builder --chown=appuser:appgroup /app/.medusa ./.medusa
-
 COPY --from=builder --chown=appuser:appgroup /app/medusa-config.js ./.medusa/server/medusa-config.js
 
 RUN mkdir -p /home/appuser/.config && \

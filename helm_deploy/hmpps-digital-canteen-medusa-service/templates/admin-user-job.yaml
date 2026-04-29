@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "generic-service.fullname" . }}-create-admin
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: create-admin-user
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command:
+            - sh
+            - -c
+            - |
+              cd /app/.medusa/server
+              
+              echo "Checking if admin user exists..."
+              
+              # Try to create user using environment variables
+              OUTPUT=$(npx medusa user create \
+                --email "$ADMIN_EMAIL" \
+                --password "$ADMIN_PASSWORD" 2>&1)
+              
+              EXIT_CODE=$?
+              
+              # Check if user already exists (Medusa returns error if duplicate)
+              if echo "$OUTPUT" | grep -qi "already exists\|duplicate\|unique constraint"; then
+                echo "Admin user already exists, skipping creation"
+                exit 0
+              elif [ $EXIT_CODE -eq 0 ]; then
+                echo "Admin user created successfully"
+                exit 0
+              else
+                echo "Error creating admin user: $OUTPUT"
+                exit 1
+              fi
+          env:
+            {{- include "generic-service.envFrom" . | nindent 12 }}
