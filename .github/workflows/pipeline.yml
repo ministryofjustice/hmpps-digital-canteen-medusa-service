@@ -1,0 +1,167 @@
+name: Pipeline [test -> build -> deploy]
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+    inputs:
+      additional_docker_tag:
+        description: Additional docker tag that can be used to specify stable or testing tags
+        required: false
+        default: ''
+        type: string
+      push:
+        description: Push docker image to registry flag
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  # Only cancel in progress when on a branch - use SHA on main to ensure uniqueness.
+  # This will allow multiple pipelines to run at the same time on main.
+  # Note that two pipelines running within a few minutes of each other will cause issues with helm deploying to
+  # a namespace, as the second one will not be able to get a lock as a deploy will be in progress.
+  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  # main node build workflow
+  node_build:
+    name: Run the node build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Use Node.js 20
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version-file: .nvmrc
+      - name: update npm
+        shell: bash
+        run: |
+          npm install -g npm@latest
+      - name: restore cache
+        id: restore-cache
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        env:
+          cache-name: node-modules
+        with:
+          path: |
+            .backend/node_modules
+            ./node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('/backend/package-lock.json', 'package-lock.json') }}
+      - name: install dependencies
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: "cd backend && npm ci --legacy-peer-deps"
+      - name: install root dependencies for linting
+        shell: bash
+        run: "npm ci"
+      - name: build npm
+        shell: bash
+        run: |
+          cd backend
+          npm run build
+#       SKIP LINTING TEMPORARILY
+#      - name: Linter check
+#        shell: bash
+#        run: |
+#          npm run lint
+      - name: upload the artifacts
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        with:
+          name: npm_build_artifacts
+          path: |
+            backend/.medusa/
+      - name: save cache
+        id: save-cache
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        env:
+          cache-name: node-modules
+        with:
+          path: |
+            ./backend/node_modules
+            ./node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('backend/package-lock.json', 'package-lock.json') }}
+
+#          TO DO: Add node unit tests and integration tests
+
+#  # generic node unit tests - feel free to override with local tests if required
+#  node_unit_tests:
+#    name: node unit tests
+#    uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
+#    needs: [node_build]
+#    secrets: inherit
+#
+#  # generic node integration tests using wiremock - feel free to override with local tests if required
+#  node_integration_tests:
+#    name: node integration tests
+#    uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_integration_tests.yml@v2 # WORKFLOW_VERSION
+#    needs: [node_build]
+#    secrets: inherit
+  helm_lint:
+    strategy:
+      matrix:
+        environments: ['dev', 'preprod', 'prod']
+    name: helm lint
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
+    needs:
+      - node_build
+    secrets: inherit
+    with:
+      environment: ${{ matrix.environments }}
+
+  # build docker image
+  build:
+    name: Build docker image from hmpps-github-actions
+    if: github.ref == 'refs/heads/main'
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
+    needs:
+      - helm_lint
+#      - node_integration_tests
+#      - node_unit_tests
+    with:
+      docker_registry: 'ghcr.io'
+      registry_org: 'ministryofjustice'
+      additional_docker_tag: ${{ inputs.additional_docker_tag }}
+      push: ${{ inputs.push || inputs.push == null }}
+      docker_multiplatform: false
+
+  # Deploy to environment
+  deploy_dev:
+    name: Deploy to the development environment
+    needs:
+      - build
+      - helm_lint
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
+    secrets: inherit
+    with:
+      environment: 'dev'
+      app_version: '${{ needs.build.outputs.app_version }}'
+      slack_notification: 'false' # if 'true', it needs a valid NONPROD_RELEASES_SLACK_CHANNEL variable to be set
+  # deploy_preprod:
+  #   name: Deploy to pre-production environment
+  #   needs:
+  #     - build
+  #     - deploy_dev
+  #   uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
+  #   secrets: inherit
+  #   with:
+  #     environment: 'preprod'
+  #     app_version: '${{ needs.build.outputs.app_version }}'
+  #     slack_notification: 'false' # if 'true', it needs a valid NONPROD_RELEASES_SLACK_CHANNEL variable to be set
+  # deploy_prod:
+  #   name: Deploy to production environment
+  #   needs:
+  #     - build
+  #     - deploy_preprod
+  #   uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
+  #   secrets: inherit
+  #   with:
+  #     environment: 'prod'
+  #     app_version: '${{ needs.build.outputs.app_version }}'
+  #     slack_notification: 'false' # if 'true', it needs a valid PROD_RELEASES_SLACK_CHANNEL variable to be set

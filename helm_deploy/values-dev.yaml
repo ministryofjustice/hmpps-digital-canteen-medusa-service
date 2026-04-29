@@ -2,13 +2,42 @@
 # Per environment values which override defaults in hmpps-digital-canteen-api/values.yaml
 
 generic-service:
-  replicaCount: 2
+  replicaCount: 1
+
+  resources:
+    limits:
+      cpu: 2
+      memory: 1Gi
+      ephemeral-storage: 2Gi
+    requests:
+      cpu: 10m
+      memory: 512Mi
+      ephemeral-storage: 500Mi
 
   ingress:
     host: digital-canteen-medusa-dev.prison.service.justice.gov.uk
 
   env:
-    HMPPS_AUTH_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
+    NODE_ENV: "production"
+    PORT: "9000"
+    DISABLE_MEDUSA_ADMIN: "false"
+    MEDUSA_BACKEND_URL: "https://digital-canteen-medusa-dev.prison.service.justice.gov.uk"
+    ADMIN_CORS: "https://digital-canteen-medusa-dev.prison.service.justice.gov.uk"
+    STORE_CORS: "*"
+    AUTH_CORS: "https://digital-canteen-medusa-dev.prison.service.justice.gov.uk"
+    DISABLE_MEDUSA_TELEMETRY: "true"
+
+  namespace_secrets:
+    medusa-secrets:
+      JWT_SECRET: "jwt-secret"
+      COOKIE_SECRET: "cookie-secret"
+      ADMIN_EMAIL: "admin-email"
+      ADMIN_PASSWORD: "admin-password"
+    rds-postgresql-instance-output:
+      DB_SERVER: "rds_instance_address"
+      DB_NAME: "database_name"
+      DB_USER: "database_username"
+      DB_PASSWORD: "database_password"
 
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts

@@ -7,15 +7,12 @@ Run
 
     docker compose up -d
 
-Add .env to apps/backend (ask for details)
+Add .env to ./backend (ask for details)
 
-Run from medusa-canteen
+Run from ./backend
 
-    npm install 
+    npm install --legacy-peer-deps
     npm run build
-
-Run from apps/backend
-
     npx medusa db:migrate 
     npx medusa user --email admin@admin.com --password supersecret 
 

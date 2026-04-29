@@ -27,6 +27,10 @@ RUN npm install --legacy-peer-deps
 
 COPY backend/ ./
 
+ENV CI=true
+ENV DISABLE_MEDUSA_ADMIN=false
+ENV MEDUSA_BACKEND_URL=""
+
 RUN npm run build
 
 RUN ./node_modules/.bin/tsc instrumentation.ts --outDir . --skipLibCheck
@@ -46,6 +50,8 @@ RUN npm ci --legacy-peer-deps --omit=dev && \
 COPY --from=builder --chown=appuser:appgroup /app/medusa-config.js ./medusa-config.js
 COPY --from=builder --chown=appuser:appgroup /app/instrumentation.js ./instrumentation.js
 COPY --from=builder --chown=appuser:appgroup /app/build-info.json ./build-info.json
+COPY --from=builder --chown=appuser:appgroup /app/.medusa ./.medusa
+COPY --from=builder --chown=appuser:appgroup /app/medusa-config.js ./.medusa/server/medusa-config.js
 
 RUN mkdir -p /home/appuser/.config && \
     chown -R appuser:appgroup /home/appuser /app
@@ -56,4 +62,4 @@ ENV PORT=9000
 ENV DISABLE_MEDUSA_TELEMETRY=true
 EXPOSE 9000
 
-CMD ["sh", "-c", "npm run db:migrate && npm run start"]
+CMD ["sh", "-c", "npm run db:migrate && cd /app/.medusa/server && npx medusa start"]
