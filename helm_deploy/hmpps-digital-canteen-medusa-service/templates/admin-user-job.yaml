@@ -12,7 +12,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: create-admin-user
-          image: "{{ .Values.generic-service.image.repository }}:{{ .Values.generic-service.image.tag }}"
+          image: "{{ index .Values "generic-service" "image" "repository" }}:{{ index .Values "generic-service" "image" "tag" }}"
           command:
             - sh
             - -c
