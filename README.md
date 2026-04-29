@@ -7,7 +7,7 @@ Run
 
     docker compose up -d
 
-Add .env to apps/backend (ask for details)
+Add .env to ./backend (ask for details)
 
 Run from ./backend
 
