@@ -13,7 +13,7 @@ generic-service:
     httpGet:
       path: /health
       port: http
-    initialDelaySeconds: 180
+    initialDelaySeconds: 45
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 6
@@ -22,7 +22,7 @@ generic-service:
     httpGet:
       path: /health
       port: http
-    initialDelaySeconds: 120
+    initialDelaySeconds: 45
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 6
