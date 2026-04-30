@@ -40,7 +40,8 @@
     "jest": "^29.7.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
-    "yalc": "^1.0.0-pre.53"
+    "yalc": "^1.0.0-pre.53",
+    "@ministryofjustice/hmpps-npm-script-allowlist": "0.0.4"
   },
   "engines": {
     "node": ">=24"

@@ -17,7 +17,6 @@
   },
   "devDependencies": {
     "@ministryofjustice/eslint-config-hmpps": "^1.0.3",
-    "@ministryofjustice/hmpps-npm-script-allowlist": "0.0.4",
     "prettier": "^3.2.5"
   }
 }
