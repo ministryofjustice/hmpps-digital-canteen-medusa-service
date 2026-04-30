@@ -10,9 +10,24 @@ spec:
   template:
     spec:
       restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 2000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: create-admin-user
           image: "ghcr.io/ministryofjustice/hmpps-digital-canteen-medusa-service:{{ index .Values "generic-service" "image" "tag" }}"
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 2000
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
           command:
             - sh
             - -c
@@ -21,8 +36,7 @@ spec:
               
               echo "Checking if admin user exists..."
               
-              OUTPUT=$(npx medusa user -e "$ADMIN_EMAIL" -p "$ADMIN_PASSWORD" 2>&1)
-              
+              OUTPUT=$(npx medusa user -e "$ADMIN_EMAIL" -p "$ADMIN_PASSWORD" 2>&1)              
               EXIT_CODE=$?
               
               if echo "$OUTPUT" | grep -qi "already exists\|duplicate\|unique constraint"; then
