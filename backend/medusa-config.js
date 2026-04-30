@@ -4,6 +4,8 @@ loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
 const isBuildTime = process.env.CI === "true"
 const isProduction = process.env.NODE_ENV === "production"
+const brandModulePath = "./src/modules/brand"
+const productModulePath = "./src/modules/products"
 
 const getDatabaseUrl = () => {
   if (process.env.DATABASE_URL) {
@@ -61,4 +63,12 @@ module.exports = defineConfig({
     disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
     backendUrl: process.env.MEDUSA_BACKEND_URL !== undefined ? process.env.MEDUSA_BACKEND_URL : "http://localhost:9000",
   },
+  modules: [
+    {
+      resolve: productModulePath,
+    },
+    {
+      resolve: brandModulePath,
+    }
+  ],
 })
