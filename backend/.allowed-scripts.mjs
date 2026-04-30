@@ -3,8 +3,7 @@ import { configureAllowedScripts } from '@ministryofjustice/hmpps-npm-script-all
 export default configureAllowedScripts({
    allowlist: {
       // Medusa telemetry - both versions
-      'node_modules/@medusajs/telemetry@2.14.0': 'FORBID',
-      'node_modules/@medusajs/medusa/node_modules/@medusajs/telemetry@2.14.1': 'FORBID',
+      'node_modules/@medusajs/telemetry@2.14.1': 'FORBID',
 
       // Build tools
       'node_modules/@swc/core@1.15.32': ['postinstall'],
