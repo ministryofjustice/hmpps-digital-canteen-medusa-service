@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Use Node.js 20
+      - name: Use Node.js 24
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version-file: .nvmrc
@@ -51,13 +51,13 @@ jobs:
           cache-name: node-modules
         with:
           path: |
-            .backend/node_modules
+            ./backend/node_modules
             ./node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('/backend/package-lock.json', 'package-lock.json') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('backend/package-lock.json', 'package-lock.json') }}
       - name: install dependencies
         if: steps.restore-cache.outputs.cache-hit != 'true'
         shell: bash
-        run: "cd backend && npm ci --legacy-peer-deps"
+        run: npm run setup
       - name: install root dependencies for linting
         shell: bash
         run: "npm ci"

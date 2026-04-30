@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim AS base
+FROM node:24-bookworm-slim AS base
 
 ARG BUILD_NUMBER=1_0_0
 ARG GIT_REF=not-available
@@ -22,8 +22,11 @@ ENV BUILD_NUMBER=${BUILD_NUMBER:-1_0_0}
 FROM base AS builder
 
 COPY backend/package*.json ./
+COPY backend/.allowed-scripts.mjs ./.allowed-scripts.mjs
+COPY backend/.npmrc ./.npmrc
 
-RUN npm install --legacy-peer-deps
+RUN npm ci --ignore-scripts --legacy-peer-deps && \
+    npx hmpps-npm-script-run-allowlist
 
 COPY backend/ ./
 
@@ -42,9 +45,12 @@ FROM base
 COPY --from=builder --chown=appuser:appgroup \
     /app/package.json \
     /app/package-lock.json \
+    /app/.allowed-scripts.mjs \
+    /app/.npmrc \
     ./
 
-RUN npm ci --legacy-peer-deps --omit=dev && \
+RUN npm ci --ignore-scripts --legacy-peer-deps --omit=dev && \
+    npx hmpps-npm-script-run-allowlist && \
     npm cache clean --force
 
 COPY --from=builder --chown=appuser:appgroup /app/medusa-config.js ./medusa-config.js
