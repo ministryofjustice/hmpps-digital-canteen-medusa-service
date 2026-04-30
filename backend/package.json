@@ -28,6 +28,8 @@
     "@medusajs/draft-order": "2.14.0",
     "@medusajs/framework": "2.14.0",
     "@medusajs/medusa": "2.14.0",
+    "@ministryofjustice/hmpps-auth-clients": "^1.0.2",
+    "@ministryofjustice/hmpps-rest-client": "^1.2.0",
     "zod": "4.2.0"
   },
   "devDependencies": {
