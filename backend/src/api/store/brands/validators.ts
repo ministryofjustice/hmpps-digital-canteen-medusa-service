@@ -1,5 +1,5 @@
 import { z } from "@medusajs/framework/zod"
 
-export const PostAdminCreateBrand = z.object({
+export const PostStoreCreateBrand = z.object({
     name: z.string(),
 })
