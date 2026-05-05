@@ -16,8 +16,6 @@ export const POST = async (
     req: MedusaRequest<PostAdminCreateBrandType>,
     res: MedusaResponse
 ) => {
-    console.log("➡️ Starting createBrandWorkflow");
-    console.log("📥 Input body:", req.validatedBody);
     const { result } = await createBrandWorkflow(req.scope)
         .run({
             input: req.validatedBody,
