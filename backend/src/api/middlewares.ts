@@ -2,12 +2,12 @@ import {
     defineMiddlewares,
     validateAndTransformBody,
 } from "@medusajs/framework/http"
-import { PostAdminCreateBrand } from "./admin/brands/validators"
+import { PostAdminCreateBrand } from "./store/brands/validators"
 
 export default defineMiddlewares({
     routes: [
         {
-            matcher: "/admin/brands",
+            matcher: "/store/brands",
             method: "POST",
             middlewares: [
                 validateAndTransformBody(PostAdminCreateBrand),
