@@ -25,22 +25,15 @@ export const hmppsConfig = {
         systemClientId: get('SYSTEM_CLIENT_ID', 'clientid', requiredInProduction) as string,
         systemClientSecret: get('SYSTEM_CLIENT_SECRET', 'clientsecret', requiredInProduction) as string,
     },
+
     apis: {
-        prison: {
-            url: get('HMPPS_PRISON_API_URL', 'https://prison-api-dev.prison.service.justice.gov.uk'),
+        finance: {
+            url: get('HMPPS_FINANCE_API_URL', 'https://finance-api-dev.hmpps.service.justice.gov.uk'),
             timeout: {
                 response: 10000,
                 deadline: 10000,
             },
             agent: new AgentConfig(10000),
-        },
-        canteen: {
-            url: get('HMPPS_CANTEEN_API_URL', 'http://localhost:8080'),
-            timeout: {
-                response: 10000,
-                deadline: 10000,
-            },
-            agent: new AgentConfig(10000),
-        },
+        }
     },
 }
