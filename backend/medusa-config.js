@@ -1,4 +1,4 @@
-const { loadEnv, defineConfig } = require("@medusajs/framework/utils")
+const { loadEnv, defineConfig, Modules } = require("@medusajs/framework/utils")
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
@@ -57,6 +57,22 @@ module.exports = defineConfig({
       httpOnly: true,
     } : undefined,
   },
+  modules: [
+    {
+      resolve: "@medusajs/medusa/payment",
+      options: {
+        providers: [
+          {
+            resolve: "./src/modules/payment-finance",
+            id: "payment-finance",
+            options: {
+              clientName: "Digital Canteen Medusa",
+            },
+          },
+        ],
+      },
+    },
+  ],
   admin: {
     disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
     backendUrl: process.env.MEDUSA_BACKEND_URL !== undefined ? process.env.MEDUSA_BACKEND_URL : "http://localhost:9000",
