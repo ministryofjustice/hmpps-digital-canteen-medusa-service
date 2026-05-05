@@ -15,7 +15,7 @@ interface AddHoldResponse {
     holdNumber: number
 }
 
-interface ReleaseHoldRequest {
+interface ReleaseHoldAndCreateTransactionRequest {
     type: 'CANT'
     removeDescription: string
     createDescription: string
@@ -23,6 +23,18 @@ interface ReleaseHoldRequest {
     clientName: string
     removeClientUniqueReference: string
     createClientUniqueReference: string
+    [key: string]: unknown
+}
+
+interface ReleaseHoldAndCreateTransactionResponse {
+    id: string
+}
+
+interface ReleaseHoldRequest {
+    description: string
+    clientTransactionId: string
+    clientName: string
+    clientUniqueReference: string
     [key: string]: unknown
 }
 
@@ -41,10 +53,11 @@ export class FinanceClient extends RestClient {
     }
 
     /**
-     * Add a hold on prisoner's account
+     * Add a hold on prisoner's account (reserve funds)
+     * Endpoint: POST /api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold
      * @param prisonId - Prison ID (e.g., "MDI")
      * @param offenderNo - Offender number (e.g., "A1234BC")
-     * @param holdRequest - Hold details request body
+     * @param holdRequest - Hold details
      */
     async addHold(
         prisonId: string,
@@ -61,11 +74,35 @@ export class FinanceClient extends RestClient {
     }
 
     /**
-     * Release a hold on prisoner's account
+     * Release a hold and create transaction
+     * Endpoint: POST /api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}
      * @param prisonId - Prison ID
      * @param offenderNo - Offender number
      * @param holdNumber - Hold number to release
-     * @param releaseRequest - Release details request body
+     * @param releaseHoldAndCreateTransaction - Transaction details
+     */
+    async releaseHoldAndCreateTransaction(
+        prisonId: string,
+        offenderNo: string,
+        holdNumber: number,
+        releaseHoldAndCreateTransaction: ReleaseHoldAndCreateTransactionRequest
+    ): Promise<ReleaseHoldAndCreateTransactionResponse> {
+        return this.post<ReleaseHoldAndCreateTransactionResponse>(
+            {
+                path: `/api/finance-holds/prison/${prisonId}/offenders/${offenderNo}/release-hold-transaction/${holdNumber}`,
+                data: releaseHoldAndCreateTransaction,
+            },
+            asSystem()
+        )
+    }
+
+    /**
+     * Release a hold
+     * Endpoint: POST /api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold/{holdNumber}
+     * @param prisonId - Prison ID
+     * @param offenderNo - Offender number
+     * @param holdNumber - Hold number to release
+     * @param releaseRequest - Release details
      */
     async releaseHold(
         prisonId: string,
@@ -75,7 +112,7 @@ export class FinanceClient extends RestClient {
     ): Promise<ReleaseHoldResponse> {
         return this.post<ReleaseHoldResponse>(
             {
-                path: `/api/finance-holds/prison/${prisonId}/offenders/${offenderNo}/release-hold-transaction/${holdNumber}`,
+                path: `/api/finance-holds/prison/${prisonId}/offenders/${offenderNo}/release-hold/${holdNumber}`, // ← Fixed: was release-hold-transaction
                 data: releaseRequest,
             },
             asSystem()
