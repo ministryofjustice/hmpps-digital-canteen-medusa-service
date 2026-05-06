@@ -160,7 +160,7 @@ jobs:
           docker run -d \
             --name medusa-test \
             --network host \
-            -e NODE_ENV=production \
+            -e NODE_ENV=CI_BUILD \
             -e DATABASE_URL=postgres://test-user:test-password@localhost:5432/medusaDB \
             -e JWT_SECRET=test-secret \
             -e COOKIE_SECRET=test-secret \
