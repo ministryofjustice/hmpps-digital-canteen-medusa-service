@@ -61,6 +61,12 @@ module.exports = defineConfig({
   },
   modules: [
     {
+      resolve: brandModulePath,
+    },
+    {
+      resolve: productModulePath,
+    },
+    {
       resolve: "@medusajs/medusa/payment",
       options: {
         providers: [
@@ -78,13 +84,5 @@ module.exports = defineConfig({
   admin: {
     disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
     backendUrl: process.env.MEDUSA_BACKEND_URL !== undefined ? process.env.MEDUSA_BACKEND_URL : "http://localhost:9000",
-  },
-  modules: [
-    {
-      resolve: productModulePath,
-    },
-    {
-      resolve: brandModulePath,
-    }
-  ],
+  }
 })
