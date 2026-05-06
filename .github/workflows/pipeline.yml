@@ -168,7 +168,7 @@ jobs:
             medusa-test:pr-${{ github.event.pull_request.number || github.sha }}
           
           echo "Waiting for container to start"
-          sleep 45
+          sleep 120
                               
           echo "Checking if container is running"
           if ! docker ps | grep -q medusa-test; then
