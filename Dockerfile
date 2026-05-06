@@ -42,22 +42,19 @@ RUN echo "{\"buildNumber\":\"${BUILD_NUMBER}\",\"gitRef\":\"${GIT_REF}\"}" > bui
 
 FROM base
 
-COPY --from=builder --chown=appuser:appgroup \
-    /app/package.json \
-    /app/package-lock.json \
-    /app/.allowed-scripts.mjs \
-    /app/.npmrc \
-    ./
-
-RUN npm ci --ignore-scripts --legacy-peer-deps --omit=dev && \
-    npx hmpps-npm-script-run-allowlist && \
-    npm cache clean --force
-
-COPY --from=builder --chown=appuser:appgroup /app/medusa-config.js ./medusa-config.js
 COPY --from=builder --chown=appuser:appgroup /app/instrumentation.js ./instrumentation.js
 COPY --from=builder --chown=appuser:appgroup /app/build-info.json ./build-info.json
 COPY --from=builder --chown=appuser:appgroup /app/.medusa ./.medusa
 COPY --from=builder --chown=appuser:appgroup /app/medusa-config.js ./.medusa/server/medusa-config.js
+COPY --from=builder --chown=appuser:appgroup /app/package.json ./.medusa/server/package.json
+COPY --from=builder --chown=appuser:appgroup /app/package-lock.json ./.medusa/server/package-lock.json
+COPY --from=builder --chown=appuser:appgroup /app/.allowed-scripts.mjs ./.medusa/server/.allowed-scripts.mjs
+COPY --from=builder --chown=appuser:appgroup /app/.npmrc ./.medusa/server/.npmrc
+
+RUN cd /app/.medusa/server && \
+    npm ci --ignore-scripts --legacy-peer-deps --omit=dev && \
+    npx hmpps-npm-script-run-allowlist && \
+    npm cache clean --force
 
 RUN mkdir -p /home/appuser/.config && \
     chown -R appuser:appgroup /home/appuser /app
@@ -68,4 +65,4 @@ ENV PORT=9000
 ENV DISABLE_MEDUSA_TELEMETRY=true
 EXPOSE 9000
 
-CMD ["sh", "-c", "npm run db:migrate && cd /app/.medusa/server && npx medusa start"]
+CMD ["sh", "-c", "cd /app/.medusa/server && npm run db:migrate && npx medusa start"]
