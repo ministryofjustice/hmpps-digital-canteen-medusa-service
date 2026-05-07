@@ -94,3 +94,13 @@ spec:
               value: "production"
             - name: DISABLE_MEDUSA_ADMIN
               value: "false"
+            - name: SYSTEM_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: hmpps-digital-canteen-api-client-creds
+                  key: API_CLIENT_ID
+            - name: SYSTEM_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: hmpps-digital-canteen-api-client-creds
+                  key: API_CLIENT_SECRET

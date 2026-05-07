@@ -15,6 +15,7 @@ export default configureAllowedScripts({
       'node_modules/protobufjs@7.5.6': ['postinstall'],
 
       // ESBuild is written in GoLang - this is needed to download prebuilt binaries for the specific platform
-      'node_modules/esbuild@0.21.5': 'ALLOW',
+      'node_modules/@medusajs/admin-bundler/node_modules/esbuild@0.21.5': 'ALLOW',
+      'node_modules/esbuild@0.28.0': 'ALLOW',
    },
 })
