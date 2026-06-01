@@ -6,8 +6,7 @@ export const POST = async (
     res: MedusaResponse
 ) => {
     const { id } = req.params;
-    const { variant_id, amount } = req.body as {
-        variant_id: string;
+    const { amount } = req.body as {
         amount: number;
     };
 
@@ -16,7 +15,7 @@ export const POST = async (
             cart_id: id,
             items: [
                 {
-                    variant_id,
+                    variant_id: "variant_01KT1WH9CXVD0CS4208GWSNS3P",
                     quantity: 1,
                     unit_price: amount,
                     requires_shipping: false,

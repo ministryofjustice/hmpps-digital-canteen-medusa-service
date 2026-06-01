@@ -67,14 +67,6 @@ class BtPaymentProviderService extends AbstractPaymentProvider<HmppsFinanceProvi
 
     /**
      * Capture payment
-     * "When an order is placed, the payment is authorized using the authorizePayment method. Then,
-     * the admin user can capture the payment, which triggers this method."
-     *
-     * Options:
-     * 1. Manually via admin portal "Capture payment" button, which will use this function
-     * 2. Automatically via fulfillment module, which will use releaseHoldAndCreateTransaction directly
-     *
-     * HMPPS API: POST /api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}
      */
     async capturePayment(input: CapturePaymentInput): Promise<CapturePaymentOutput> {
         console.log("CAPTURING payment for prisoner:")
@@ -83,8 +75,6 @@ class BtPaymentProviderService extends AbstractPaymentProvider<HmppsFinanceProvi
 
     /**
      * NOT IMPLEMENTED
-     * "This method cancels a payment in the third-party payment provider.
-     * It's used when the admin user cancels an order. The order can only be canceled if the payment is not captured yet."
      */
     async cancelPayment(input: CancelPaymentInput): Promise<CancelPaymentOutput> {
         throw new Error("not implemented yet")
@@ -92,11 +82,6 @@ class BtPaymentProviderService extends AbstractPaymentProvider<HmppsFinanceProvi
 
     /**
      * NOT IMPLEMENTED
-     * "When a customer chooses a payment method during checkout, then chooses a different one,
-     * this method is triggered to delete the previous payment session.
-     *
-     * If your provider doesn't support deleting a payment session, you can just return an empty
-     * object or an object that contains the same received data property."
      */
     async deletePayment(input: DeletePaymentInput): Promise<DeletePaymentOutput> {
         throw new Error("not implemented yet")
@@ -104,8 +89,6 @@ class BtPaymentProviderService extends AbstractPaymentProvider<HmppsFinanceProvi
 
     /**
      * NOT IMPLEMENTED
-     * "This method updates a payment in the third-party service that was previously
-     * initiated with the initiatePayment method."
      */
     async updatePayment(input: UpdatePaymentInput): Promise<UpdatePaymentOutput> {
         throw new Error("not implemented yet")
@@ -113,7 +96,6 @@ class BtPaymentProviderService extends AbstractPaymentProvider<HmppsFinanceProvi
 
     /**
      * NOT IMPLEMENTED
-     * "This method gets the status of a payment session based on the status in the third-party integration."
      */
     async getPaymentStatus(input: GetPaymentStatusInput): Promise<GetPaymentStatusOutput> {
         throw new Error("not implemented yet")
@@ -121,7 +103,6 @@ class BtPaymentProviderService extends AbstractPaymentProvider<HmppsFinanceProvi
 
     /**
      * NOT IMPLEMENTED
-     * "This method retrieves the payment's data from the third-party payment provider."
      */
     async retrievePayment(input: RetrievePaymentInput): Promise<RetrievePaymentOutput> {
         throw new Error("not implemented yet")

@@ -1,4 +1,3 @@
-// src/api/store/carts/route.ts
 import {container, MedusaRequest, MedusaResponse} from "@medusajs/framework";
 import { createCartWorkflow } from "@medusajs/medusa/core-flows";
 import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils";
@@ -10,10 +9,11 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
         metadata: {
             prison_id: string;
             offender_no: string;
+            first_name: string;
+            second_name: string;
         }
     };
-    const { prison_id, offender_no } = metadata;
-
+    const { prison_id, offender_no, first_name, second_name } = metadata;
     const prisonerService = container.resolve(PRISONER_MODULE);
     const customerService = container.resolve(Modules.CUSTOMER);
     const link = container.resolve(ContainerRegistrationKeys.LINK);
@@ -23,13 +23,14 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
         prison_id,
         prisoner_id: offender_no,
     });
-    console.log('TEST 1 ', existingPrisoner)
 
+    // medusa has customer table inbuilt, it does not have a customizable schema, instead of storing offender_no
+    // in meta_data, we can create a separate prisoner module and table and link them to make later queries like
+    // orders simple
+    //
+    // Check if prisoner has used service before i.e. already exists, if they do create cart against that
     let customerId: string | undefined;
-
     if (existingPrisoner) {
-        console.log("PRISONER ALREADY EXISTS")
-        // Find linked customer
         const { data: [linked] } = await query.graph({
             entity: "prisoner",
             fields: ["customer.*"],
@@ -37,32 +38,30 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
         });
         customerId = linked?.customer?.id;
     } else {
-        console.log("PRISONER DOES NOT ALREADY EXISTS")
-        console.log(region_id, prison_id, offender_no)
-
-        // Create customer
+        // create new customer.
         const customer = await customerService.createCustomers({
-            first_name: offender_no,
-            last_name: prison_id,
-            email: `${offender_no}@${prison_id}.internal.hmpps`,
+            first_name: first_name,
+            last_name: second_name,
+            metadata: {
+                prison_id,
+                offender_no,
+            },
         });
-
-        // Create prisoner record
+        // create new prisoner.
         const prisoner = await prisonerService.createPrisoners({
             prison_id,
             prisoner_id: offender_no,
+            prisoner_first_name: first_name,
+            prisoner_second_name: second_name,
         });
-
-        // Link them
+        // form link between them.
         await link.create({
             [Modules.CUSTOMER]: { customer_id: customer.id },
             [PRISONER_MODULE]: { prisoner_id: prisoner.id },
         });
-
         customerId = customer.id;
     }
 
-    // Create cart with customer attached
     const { result } = await createCartWorkflow(req.scope).run({
         input: {
             region_id,

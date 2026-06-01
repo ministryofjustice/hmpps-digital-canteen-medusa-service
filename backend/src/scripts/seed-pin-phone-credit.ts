@@ -1,4 +1,3 @@
-// src/scripts/seed-products.ts
 import { MedusaContainer } from "@medusajs/framework";
 import {ContainerRegistrationKeys, ModuleRegistrationName, ProductStatus,} from "@medusajs/framework/utils";
 import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
@@ -26,23 +25,14 @@ export default async function seedProducts({container,}: { container: MedusaCont
     });
     const digitalShippingProfile = shippingProfiles[0];
 
-    // Check if product type exists, create if not
-    let [digitalType] = await productModuleService.listProductTypes({
-        value: "digital",
-    });
+    let [digitalType] = await productModuleService.listProductTypes({value: "digital"});
     if (!digitalType) {
-        [digitalType] = await productModuleService.createProductTypes([
-            { value: "digital" },
-        ]);
+        [digitalType] = await productModuleService.createProductTypes([{ value: "digital" }]);
     }
 
-    // Check if product already exists
-    const [existing] = await productModuleService.listProducts({
-        handle: "pin-phone-credit",
-    });
-
+    const [existing] = await productModuleService.listProducts({handle: "pin-phone-credit",});
     if (existing) {
-        logger.info("PIN Phone Credit already exists — updating...");
+        logger.info("Updating PIN phone credit product")
         await productModuleService.updateProducts(existing.id, {
             title: "PIN Phone Credit",
             description: "Top up your phone account with PIN credit",
@@ -59,7 +49,7 @@ export default async function seedProducts({container,}: { container: MedusaCont
         return;
     }
 
-    logger.info("Creating PIN Phone Credit...");
+    logger.info("Creating PIN Phone Credit");
     await createProductsWorkflow(container).run({
         input: {
             products: [

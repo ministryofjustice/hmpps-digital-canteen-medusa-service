@@ -31,7 +31,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         fields: [
             "id",
             "status",
-            "total",
+            "total_amount",
             "created_at",
             "items.*",
         ],
