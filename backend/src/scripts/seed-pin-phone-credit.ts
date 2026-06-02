@@ -6,9 +6,7 @@ export default async function seedProducts({container,}: { container: MedusaCont
 {
     const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
     const query = container.resolve(ContainerRegistrationKeys.QUERY);
-    const productModuleService = container.resolve(
-        ModuleRegistrationName.PRODUCT
-    );
+    const productModuleService = container.resolve(ModuleRegistrationName.PRODUCT);
 
     // Look up references created by the migration
     const { data: salesChannels } = await query.graph({

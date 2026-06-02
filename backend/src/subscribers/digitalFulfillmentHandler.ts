@@ -22,8 +22,6 @@ export default async function digitalFulfillmentHandler({
         fields: [
             "id",
             "items.*",
-            "items.variant.*",
-            "items.variant.product.*",
             "items.variant.product.type.*",
             "payment_collections.*",
             "payment_collections.payments.*",
@@ -35,34 +33,23 @@ export default async function digitalFulfillmentHandler({
         logger.warn(`No items found for order ${orderId}`);
         return;
     }
-
-    // Check if this order has digital items
     const digitalItems = order.items
         .filter((item): item is NonNullable<typeof item> => item != null)
-        .filter((item) => item.variant?.product?.type?.value === "digital");
+        .filter((item) => item?.variant?.product?.type?.value === "digital");
 
-    if (!digitalItems?.length) {
-        logger.info(`No digital items in order ${orderId}, skipping`);
-        return;
-    }
-
-    // Step 1: Capture payment
     try {
         const paymentCollection = order.payment_collections?.[0];
         const payment = paymentCollection?.payments?.find(
-            (p) => p?.captured_at === null
+            (paymentInfo) => paymentInfo?.captured_at === null
         );
-
         if (payment) {
-            logger.info(`Capturing payment ${payment.id} for order ${orderId}`);
+            logger.info(`Capturing payment for order ${orderId}`);
 
             await capturePaymentWorkflow(container).run({
                 input: {
                     payment_id: payment.id,
                 },
             });
-
-            logger.info(`Payment captured for order ${orderId}`);
         } else {
             logger.info(`Payment already captured for order ${orderId}`);
         }
@@ -70,23 +57,19 @@ export default async function digitalFulfillmentHandler({
         logger.error(
             `Failed to capture payment for order ${orderId}: ${error.message}`
         );
-        return; // Don't fulfil if payment capture fails
+        return;
     }
 
-    // Step 2: Create fulfillment for digital items
     try {
-        logger.info(
-            `Auto-fulfilling ${digitalItems.length} digital item(s) for order ${orderId}`
-        );
-
         await createOrderFulfillmentWorkflow(container).run({
             input: {
                 order_id: orderId,
                 items: digitalItems.map((item) => ({
-                    id: item.id,
-                    quantity: item.quantity,
+                    id: item?.id,
+                    quantity: item?.quantity,
                 })),
-                no_notification: false,
+                no_notification: true,
+                requires_shipping: false
             },
         });
 

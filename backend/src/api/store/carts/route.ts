@@ -1,11 +1,10 @@
 import {container, MedusaRequest, MedusaResponse} from "@medusajs/framework";
 import { createCartWorkflow } from "@medusajs/medusa/core-flows";
-import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import {Modules, ContainerRegistrationKeys, ModuleRegistrationName} from "@medusajs/framework/utils";
 import { PRISONER_MODULE } from "../../../modules/prisoner";
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-    const { region_id, metadata } = req.body as {
-        region_id: string;
+    const { metadata } = req.body as {
         metadata: {
             prison_id: string;
             offender_no: string;
@@ -26,7 +25,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
 
     // medusa has customer table inbuilt, it does not have a customizable schema, instead of storing offender_no
     // in meta_data, we can create a separate prisoner module and table and link them to make later queries like
-    // orders simple
+    // order history easier
     //
     // Check if prisoner has used service before i.e. already exists, if they do create cart against that
     let customerId: string | undefined;
@@ -46,6 +45,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
                 prison_id,
                 offender_no,
             },
+            has_account: false,
         });
         // create new prisoner.
         const prisoner = await prisonerService.createPrisoners({
@@ -62,9 +62,12 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
         customerId = customer.id;
     }
 
+    const regionModuleService = container.resolve(ModuleRegistrationName.REGION);
+    const [region] = await regionModuleService.listRegions({name: "United Kingdom",});
+
     const { result } = await createCartWorkflow(req.scope).run({
         input: {
-            region_id,
+            region_id: region.id,
             customer_id: customerId,
         },
     });

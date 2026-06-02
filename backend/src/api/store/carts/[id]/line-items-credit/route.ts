@@ -1,5 +1,6 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
+import {container, MedusaRequest, MedusaResponse} from "@medusajs/framework";
 import {addToCartWorkflow,} from "@medusajs/medusa/core-flows";
+import {ModuleRegistrationName} from "@medusajs/framework/utils";
 
 export const POST = async (
     req: MedusaRequest,
@@ -10,12 +11,15 @@ export const POST = async (
         amount: number;
     };
 
+    const productModuleService = container.resolve(ModuleRegistrationName.PRODUCT);
+    const [variant] = await productModuleService.listProductVariants({sku: "PIN-CREDIT",});
+
     const { result } = await addToCartWorkflow(req.scope).run({
         input: {
             cart_id: id,
             items: [
                 {
-                    variant_id: "variant_01KT1WH9CXVD0CS4208GWSNS3P",
+                    variant_id: variant.id,
                     quantity: 1,
                     unit_price: amount,
                     requires_shipping: false,
