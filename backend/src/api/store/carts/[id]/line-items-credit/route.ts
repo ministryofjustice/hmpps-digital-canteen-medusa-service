@@ -1,6 +1,6 @@
-import {container, MedusaRequest, MedusaResponse} from "@medusajs/framework";
-import {addToCartWorkflow,} from "@medusajs/medusa/core-flows";
-import {ModuleRegistrationName} from "@medusajs/framework/utils";
+import {MedusaRequest, MedusaResponse} from "@medusajs/framework";
+import {addToCartWorkflow, createPaymentCollectionForCartWorkflow} from "@medusajs/medusa/core-flows";
+import {ModuleRegistrationName, Modules} from "@medusajs/framework/utils";
 
 export const POST = async (
     req: MedusaRequest,
@@ -11,7 +11,7 @@ export const POST = async (
         amount: number;
     };
 
-    const productModuleService = container.resolve(ModuleRegistrationName.PRODUCT);
+    const productModuleService = req.scope.resolve(ModuleRegistrationName.PRODUCT);
     const [variant] = await productModuleService.listProductVariants({sku: "PIN-CREDIT",});
 
     const { result } = await addToCartWorkflow(req.scope).run({
@@ -26,6 +26,22 @@ export const POST = async (
                 },
             ],
         },
+    });
+
+    const paymentCollection =
+        await createPaymentCollectionForCartWorkflow(req.scope)
+            .run({
+                input: {
+                    cart_id: id,
+                },
+            });
+
+    const paymentModuleService = req.scope.resolve(Modules.PAYMENT);
+    await paymentModuleService.createPaymentSession(paymentCollection.result.id, {
+        provider_id: "pp_bt-payment_bt-payment",
+        amount,
+        currency_code: "gbp",
+        data: {},
     });
 
     res.status(200).json({ cart: result });
