@@ -1,44 +1,55 @@
-import {Modules } from "@medusajs/framework/utils"
-import {ExecArgs, IProductModuleService} from "@medusajs/framework/types"
+import { ExecArgs } from "@medusajs/framework/types"
+import { PRODUCT_MODULE } from "../modules/products"
+import ProductModuleService from "../modules/products/service"
 
 export default async function seedCanteenProducts({ container }: ExecArgs) {
-  const productModuleService: IProductModuleService = container.resolve(
-      Modules.PRODUCT
+  const productModuleService: ProductModuleService = container.resolve(
+    PRODUCT_MODULE
   )
 
   const productsData = [
     {
-      title: "Cheese Sandwich3",
+      title: "Cheese Sandwich",
       description: "Classic cheese sandwich with cheddar",
-      variants: [
-        {
-          title: "Default",
-          prices: [
-            {
-              amount: 350,
-              currency_code: "gbp", // or your currency
-            },
-          ],
-          manage_inventory: true,
-          inventory_quantity: 50,
-        },
-      ],
-      images: [
-        {
-          url: "https://www.allrecipes.com/thmb/H_gwkwI6-5YPvZhXxYyf2TS5vbs=/0x512/filters:no_upscale():max_bytes(150000):strip_icc()/AR-238891-Grilled-Cheese-Sandwich-beauty-4x3-362f705972e64a948b7ec547f7b2a831.jpg",
-        }
-    ],
+      price: 350,
+      inventory: 50,
+      available: true,
     },
-    // ... other products
+    {
+      title: "Chicken Wrap",
+      description: "Grilled chicken wrap with salad",
+      price: 450,
+      inventory: 30,
+      available: true,
+    },
+    {
+      title: "Apple Juice",
+      description: "Freshly squeezed apple juice",
+      price: 200,
+      inventory: 100,
+      available: true,
+    },
+    {
+      title: "Chocolate Brownie",
+      description: "Rich chocolate brownie",
+      price: 250,
+      inventory: 40,
+      available: true,
+    },
+    {
+      title: "Vegetable Soup",
+      description: "Hearty vegetable soup",
+      price: 300,
+      inventory: 20,
+      available: true,
+    },
   ]
 
   console.log("Seeding canteen products...")
 
   try {
-    for (const productData of productsData) {
-      await productModuleService.upsertProducts(productData)
-    }
-    console.log(`Successfully seeded ${productsData.length} products.`)
+    const products = await productModuleService.createCanteenProducts(productsData)
+    console.log(`Successfully seeded ${products.length} products.`)
   } catch (error) {
     console.error("Error seeding canteen products:", error)
   }
