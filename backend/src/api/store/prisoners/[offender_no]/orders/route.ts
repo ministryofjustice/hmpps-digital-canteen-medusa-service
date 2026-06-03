@@ -1,4 +1,3 @@
-// src/api/store/prisoners/[offender_no]/orders/route.ts
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { PRISONER_MODULE } from "../../../../../modules/prisoner";
@@ -31,9 +30,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         fields: [
             "id",
             "status",
-            "total_amount",
             "created_at",
-            "items.*",
+            "items.id",
+            "items.title",
+            "items.raw_unit_price",
         ],
         filters: { customer_id: linked.customer.id },
         pagination: {
@@ -43,4 +43,4 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     });
 
     res.status(200).json({ orders });
-};
+}
