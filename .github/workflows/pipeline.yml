@@ -66,26 +66,11 @@ jobs:
         run: |
           cd backend
           npm run build
-          echo "Build output:"
-          ls -la .medusa/ || echo ".medusa not found"
 #       SKIP LINTING TEMPORARILY
 #      - name: Linter check
 #        shell: bash
 #        run: |
 #          npm run lint
-      - name: debug paths
-        run: |
-          echo "Repo root contents:"
-          ls -la
-          echo "Backend contents:"
-          ls -la backend/
-          echo "Does .medusa exist?"
-          ls -la backend/.medusa/ || echo "NOT FOUND"
-      - name: upload the artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
-        with:
-          name: npm_build_artifacts
-          path: backend/.medusa/
       - name: save cache
         id: save-cache
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
