@@ -167,19 +167,25 @@ jobs:
             -e DISABLE_MEDUSA_ADMIN=true \
             medusa-test:pr-${{ github.event.pull_request.number || github.sha }}
           
-          echo "Waiting for container to start"
-          sleep 120
-                              
-          echo "Checking if container is running"
-          if ! docker ps | grep -q medusa-test; then
-            echo "Container failed to start or crashed"
-            echo "Container logs:"
+          READY=false
+          for i in $(seq 1 60); do
+            if ! docker ps --filter name=medusa-test --filter status=running -q | grep -q .; then
+              echo "Container stopped"
+              exit 1
+            fi
+            if docker logs medusa-test 2>&1 | grep -q "Server is ready"; then
+              echo "Server ready after"
+              READY=true
+              break
+            fi
+            sleep 2
+          done
+          
+          if [ "$READY" != "true" ]; then
+            echo "Server did not become ready within timeout"
             docker logs medusa-test
             exit 1
           fi
-          
-          echo "Container started successfully"
-          docker logs medusa-test
 
       - name: Cleanup
         if: always()

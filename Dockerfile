@@ -1,5 +1,4 @@
 FROM node:24-bookworm-slim AS base
-
 ARG BUILD_NUMBER=1_0_0
 ARG GIT_REF=not-available
 
@@ -15,46 +14,41 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
 ENV HOME=/home/appuser
-ENV BUILD_NUMBER=${BUILD_NUMBER:-1_0_0}
 
-FROM base AS builder
-
-COPY backend/package*.json ./
-COPY backend/.allowed-scripts.mjs ./.allowed-scripts.mjs
-COPY backend/.npmrc ./.npmrc
-
-RUN npm ci --ignore-scripts --legacy-peer-deps && \
+# ── All dependencies (for building)
+FROM base AS deps
+COPY backend/package*.json backend/.npmrc backend/.allowed-scripts.mjs ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --ignore-scripts --legacy-peer-deps && \
     npx hmpps-npm-script-run-allowlist
 
-COPY backend/ ./
+# ── Prod-only dependencies
+FROM base AS prod-deps
+COPY backend/package*.json backend/.npmrc backend/.allowed-scripts.mjs ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --ignore-scripts --legacy-peer-deps --omit=dev && \
+    npx hmpps-npm-script-run-allowlist
 
+# ── Build
+FROM deps AS build
+COPY backend/ ./
 ENV CI=true
 ENV DISABLE_MEDUSA_ADMIN=false
 ENV MEDUSA_BACKEND_URL=""
-
 RUN npm run build
-
 RUN ./node_modules/.bin/tsc instrumentation.ts --outDir . --skipLibCheck
-
 RUN echo "{\"buildNumber\":\"${BUILD_NUMBER}\",\"gitRef\":\"${GIT_REF}\"}" > build-info.json
 
-FROM base
-
-COPY --from=builder --chown=appuser:appgroup /app/instrumentation.js ./instrumentation.js
-COPY --from=builder --chown=appuser:appgroup /app/build-info.json ./build-info.json
-COPY --from=builder --chown=appuser:appgroup /app/.medusa ./.medusa
-COPY --from=builder --chown=appuser:appgroup /app/medusa-config.js ./.medusa/server/medusa-config.js
-COPY --from=builder --chown=appuser:appgroup /app/package.json ./.medusa/server/package.json
-COPY --from=builder --chown=appuser:appgroup /app/package-lock.json ./.medusa/server/package-lock.json
-COPY --from=builder --chown=appuser:appgroup /app/.allowed-scripts.mjs ./.medusa/server/.allowed-scripts.mjs
-COPY --from=builder --chown=appuser:appgroup /app/.npmrc ./.medusa/server/.npmrc
-
-RUN cd /app/.medusa/server && \
-    npm ci --ignore-scripts --legacy-peer-deps --omit=dev && \
-    npx hmpps-npm-script-run-allowlist && \
-    npm cache clean --force
+# ── Production
+FROM base AS production
+COPY --from=build --chown=appuser:appgroup /app/instrumentation.js ./instrumentation.js
+COPY --from=build --chown=appuser:appgroup /app/build-info.json ./build-info.json
+COPY --from=build --chown=appuser:appgroup /app/.medusa ./.medusa
+COPY --from=build --chown=appuser:appgroup /app/medusa-config.js ./.medusa/server/medusa-config.js
+COPY --from=prod-deps --chown=appuser:appgroup /app/node_modules ./.medusa/server/node_modules
+COPY --from=build --chown=appuser:appgroup /app/package.json ./.medusa/server/package.json
+COPY --from=build --chown=appuser:appgroup /app/package-lock.json ./.medusa/server/package-lock.json
 
 RUN mkdir -p /home/appuser/.config && \
     chown -R appuser:appgroup /home/appuser /app
