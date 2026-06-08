@@ -1,0 +1,35 @@
+{
+  "mappings": [
+    {
+      "name": "Retrieve balance - prisoner A1234BC",
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/api/balance/A1234BC",
+        "bodyPatterns": [
+          { "matchesJsonPath": "$.reference" }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "prisoner-A1234BC-balance.json"
+      }
+    },
+    {
+      "name": "Retrieve balance - prisoner not found",
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/api/balance/A1234BCxx"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "response": "GetBalance",
+          "resultCode": "PRISONER_NOT_FOUND",
+          "reference": "REF-001"
+        }
+      }
+    }
+  ]
+}

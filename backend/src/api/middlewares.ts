@@ -3,6 +3,7 @@ import {
     validateAndTransformBody,
 } from "@medusajs/framework/http"
 import { PostStoreCreateBrand } from "./store/brands/validators"
+import {validateHmppsToken} from "./hmppsAuth";
 
 export default defineMiddlewares({
     routes: [
@@ -12,6 +13,11 @@ export default defineMiddlewares({
             middlewares: [
                 validateAndTransformBody(PostStoreCreateBrand),
             ],
+        },
+
+        {
+            matcher: '/store/*',
+            middlewares: [validateHmppsToken],
         },
     ],
 })

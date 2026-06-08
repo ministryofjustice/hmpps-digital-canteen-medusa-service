@@ -77,7 +77,20 @@ module.exports = defineConfig({
               clientName: "Digital Canteen Medusa",
             },
           },
+          {
+            resolve: "./src/modules/bt-payment",
+            id: "bt-payment",
+            options: {
+              clientName: "Digital Canteen Medusa",
+            },
+          },
         ],
+      },
+    },
+    {
+      resolve: "./src/modules/prisoner",
+      definition: {
+        isQueryable: true,
       },
     },
   ],

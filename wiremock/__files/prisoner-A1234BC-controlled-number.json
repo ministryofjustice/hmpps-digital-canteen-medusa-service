@@ -1,0 +1,14 @@
+{
+  "response": "GetControlledNumber",
+  "resultCode": "SUCCESS",
+  "reference": "REF-001",
+  "prisonerId": "A1234BC",
+  "ControlledNumberData": [
+    {
+      "id": 1112233,
+      "telephoneNumber": "0123456789",
+      "relationship": 5,
+      "name": "Dave"
+    }
+  ]
+}
