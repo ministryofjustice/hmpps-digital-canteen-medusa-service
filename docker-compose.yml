@@ -8,6 +8,24 @@ services:
       POSTGRES_PASSWORD: test-password
     ports:
       - "5432:5432"
+    networks:
+      - hmpps_int
+
+  wiremock:
+    image: wiremock/wiremock
+    networks:
+      - hmpps_int
+    container_name: wiremock
+    restart: always
+    ports:
+      - "9091:8080"
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings
+      - ./wiremock/__files:/home/wiremock/__files
+    command: --verbose
+
+networks:
+  hmpps_int:
 
 #  medusa:
 #    build: .

@@ -1,0 +1,16 @@
+{
+  "response": "SetControlledNumbers",
+  "resultCode": "SUCCESS",
+  "reference": "REF-001",
+  "prisonerId": "A1234BC",
+  "setControlledNumberResultData": [
+    {
+      "id": "001",
+      "result": "INSERTED"
+    },
+    {
+      "id": "002",
+      "result": "INSERTED"
+    }
+  ]
+}
