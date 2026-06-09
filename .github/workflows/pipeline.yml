@@ -71,11 +71,10 @@ jobs:
           cd backend
           npm run build
 
-      #       SKIP LINTING TEMPORARILY
-      #      - name: Linter check
-      #        shell: bash
-      #        run: |
-      #          npm run lint
+      - name: Linter check
+        shell: bash
+        run: |
+          npm run lint  
 
       - name: Save cache
         if: steps.restore-cache.outputs.cache-hit != 'true'

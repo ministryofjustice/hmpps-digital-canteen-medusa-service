@@ -1,5 +1,5 @@
-import { z } from "@medusajs/framework/zod"
+import { z } from '@medusajs/framework/zod'
 
 export const PostStoreCreateBrand = z.object({
-    name: z.string(),
+  name: z.string(),
 })
