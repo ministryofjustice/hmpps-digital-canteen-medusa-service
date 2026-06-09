@@ -2,7 +2,7 @@ import hmppsConfig from '@ministryofjustice/eslint-config-hmpps'
 
 export default [
   ...hmppsConfig({
-    // backend/src/api/store/canteen-products/route.ts
+    // backend/src/api/store/canteen-products/route.ts ignored as only POC file
     extraIgnorePaths: [
       'backend/.medusa',
       'backend/src/migration-scripts/**',
