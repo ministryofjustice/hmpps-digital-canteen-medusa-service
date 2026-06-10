@@ -35,58 +35,57 @@ jobs:
     name: Run the node build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
       - name: Use Node.js 24
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version-file: .nvmrc
-      - name: update npm
-        shell: bash
-        run: |
-          npm install -g npm@latest
-      - name: restore cache
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Restore cache
         id: restore-cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         env:
           cache-name: node-modules
         with:
           path: |
-            ./backend/node_modules
             ./node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('backend/package-lock.json', 'package-lock.json') }}
-      - name: install dependencies
+            ./backend/node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('package-lock.json', 'backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+
+      - name: Install dependencies
         if: steps.restore-cache.outputs.cache-hit != 'true'
-        shell: bash
         run: npm run setup
-      - name: install root dependencies for linting
-        shell: bash
-        run: "npm ci"
-      - name: build npm
-        shell: bash
+
+      - name: Install root dependencies
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Build
         run: |
           cd backend
           npm run build
-#       SKIP LINTING TEMPORARILY
-#      - name: Linter check
-#        shell: bash
-#        run: |
-#          npm run lint
-      - name: upload the artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
-        with:
-          name: npm_build_artifacts
-          path: |
-            backend/.medusa/
-      - name: save cache
-        id: save-cache
+
+      - name: Linter check
+        shell: bash
+        run: |
+          npm run lint  
+
+      - name: Save cache
+        if: steps.restore-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         env:
           cache-name: node-modules
         with:
           path: |
-            ./backend/node_modules
             ./node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('backend/package-lock.json', 'package-lock.json') }}
+            ./backend/node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('package-lock.json', 'backend/package-lock.json') }}
 
 #          TO DO: Add node unit tests and integration tests
 
@@ -144,7 +143,7 @@ jobs:
         uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
 
       - name: Build Docker image
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
         with:
           context: .
           push: false
@@ -167,19 +166,25 @@ jobs:
             -e DISABLE_MEDUSA_ADMIN=true \
             medusa-test:pr-${{ github.event.pull_request.number || github.sha }}
           
-          echo "Waiting for container to start"
-          sleep 120
-                              
-          echo "Checking if container is running"
-          if ! docker ps | grep -q medusa-test; then
-            echo "Container failed to start or crashed"
-            echo "Container logs:"
+          READY=false
+          for i in $(seq 1 60); do
+            if ! docker ps --filter name=medusa-test --filter status=running -q | grep -q .; then
+              echo "Container stopped"
+              exit 1
+            fi
+            if docker logs medusa-test 2>&1 | grep -q "Server is ready"; then
+              echo "Server ready after"
+              READY=true
+              break
+            fi
+            sleep 2
+          done
+          
+          if [ "$READY" != "true" ]; then
+            echo "Server did not become ready within timeout"
             docker logs medusa-test
             exit 1
           fi
-          
-          echo "Container started successfully"
-          docker logs medusa-test
 
       - name: Cleanup
         if: always()

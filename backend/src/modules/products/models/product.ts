@@ -1,6 +1,6 @@
-import { model } from "@medusajs/framework/utils"
+import { model } from '@medusajs/framework/utils'
 
-const CanteenProduct = model.define("canteen_product", {
+const CanteenProduct = model.define('canteen_product', {
   id: model.id().primaryKey(),
   title: model.text(),
   description: model.text().nullable(),
