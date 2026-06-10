@@ -1,0 +1,32 @@
+{
+  "mappings": [
+    {
+      "name": "Insert controlled numbers - prisoner A1234BC",
+      "request": {
+        "method": "POST",
+        "url": "/api/insert-controlled-numbers/A1234BC"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "prisoner-A1234BC-insert-controlled-numbers.json"
+      }
+    },
+    {
+      "name": "Insert controlled numbers  - prisoner not found",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/insert-controlled-numbers/A1234BCxx"
+      },
+      "response": {
+        "status": 404,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "response": "InsertControlledNumbers",
+          "resultCode": "PRISONER_NOT_FOUND",
+          "reference": "REF-001"
+        }
+      }
+    }
+  ]
+}

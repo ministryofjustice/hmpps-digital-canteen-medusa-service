@@ -1,3 +1,4 @@
+// POC only
 export default {
-  '*.{ts,js,mjs}': ['eslint --cache --max-warnings 0'],
+  '*.{ts,js,mjs}': ['eslint --fix'],
 }

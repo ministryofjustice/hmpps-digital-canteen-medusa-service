@@ -32,7 +32,9 @@
     "@ministryofjustice/hmpps-auth-clients": "^1.0.2",
     "@ministryofjustice/hmpps-npm-script-allowlist": "0.0.4",
     "@ministryofjustice/hmpps-rest-client": "^1.2.0",
-    "zod": "4.2.0"
+    "zod": "4.2.0",
+    "jwt-decode": "^4.0.0",
+    "jwks-rsa": "^3.2.0"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.15.5",

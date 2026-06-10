@@ -1,0 +1,9 @@
+{
+  "response": "AddFunds",
+  "resultCode": "SUCCESS",
+  "reference": "REF-001",
+  "prisonerId": "A1234BC",
+  "amount": 123,
+  "balance": 2500,
+  "creditLimit": 5000
+}

@@ -1,0 +1,36 @@
+{
+  "mappings": [
+    {
+      "name": "Add funds - prisoner A1234BC",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/add-funds/A1234BC",
+        "bodyPatterns": [
+          { "matchesJsonPath": "$.reference" },
+          { "matchesJsonPath": "$.amount" }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "prisoner-A1234BC-add-funds.json"
+      }
+    },
+    {
+      "name": "Add funds - prisoner not found",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/add-funds/A1234BCxx"
+      },
+      "response": {
+        "status": 404,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "response": "AddFunds",
+          "resultCode": "PRISONER_NOT_FOUND",
+          "reference": "REF-001"
+        }
+      }
+    }
+  ]
+}

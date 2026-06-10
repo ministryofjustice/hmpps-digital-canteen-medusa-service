@@ -1,0 +1,7 @@
+{
+  "response": "GetBalance",
+  "resultCode": "SUCCESS",
+  "reference": "REF-001",
+  "prisonerId": "A1234BC",
+  "balance": 2500
+}

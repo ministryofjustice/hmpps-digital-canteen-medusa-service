@@ -1,0 +1,44 @@
+{
+  "response": "GetCallRecord",
+  "resultCode": "SUCCESS",
+  "reference": "REF-001",
+  "prisonerId": "A1234BC",
+  "CallRecord": [
+    {
+      "callTime": "20/02/1990",
+      "dialledNumber": "0123456789",
+      "duration": 5,
+      "cost": 15
+    },
+    {
+      "callTime": "201/02/1990",
+      "dialledNumber": "0123456755",
+      "duration": 2,
+      "cost": 6
+    },
+    {
+      "callTime": "22/02/1990",
+      "dialledNumber": "0123456777",
+      "duration": 3,
+      "cost": 5
+    },
+    {
+      "callTime": "24/02/1990",
+      "dialledNumber": "0123456799",
+      "duration": 4,
+      "cost": 33
+    },
+    {
+      "callTime": "26/02/1990",
+      "dialledNumber": "0123456755",
+      "duration": 5,
+      "cost": 22
+    },
+    {
+      "callTime": "27/02/1990",
+      "dialledNumber": "0123456744",
+      "duration": 7,
+      "cost": 12
+    }
+  ]
+}
