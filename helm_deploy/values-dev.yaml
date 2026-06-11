@@ -26,7 +26,7 @@ generic-service:
     STORE_CORS: "*"
     AUTH_CORS: "https://digital-canteen-medusa-dev.prison.service.justice.gov.uk"
     DISABLE_MEDUSA_TELEMETRY: "true"
-    HMPPS_AUTH_URL: "https://sign-in-dev.prison.service.justice.gov.uk/auth"
+    HMPPS_AUTH_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
     HMPPS_FINANCE_API_URL: "https://prison-api-dev.prison.service.justice.gov.uk"
 
   namespace_secrets:
