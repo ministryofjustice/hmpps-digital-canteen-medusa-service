@@ -161,6 +161,7 @@ jobs:
             --network host \
             -e NODE_ENV=CI_BUILD \
             -e DATABASE_URL=postgres://test-user:test-password@localhost:5432/medusaDB \
+            -e REDIS_URL=redis://localhost:6379 \
             -e JWT_SECRET=test-secret \
             -e COOKIE_SECRET=test-secret \
             -e DISABLE_MEDUSA_ADMIN=true \
