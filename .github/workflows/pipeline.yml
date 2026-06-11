@@ -170,11 +170,11 @@ jobs:
           READY=false
           for i in $(seq 1 60); do
             if ! docker ps --filter name=medusa-test --filter status=running -q | grep -q .; then
-              echo "Container stopped"
+              docker logs medusa-test
               exit 1
             fi
             if docker logs medusa-test 2>&1 | grep -q "Server is ready"; then
-              echo "Server ready after"
+              echo "Server ready"
               READY=true
               break
             fi
