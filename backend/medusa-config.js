@@ -22,8 +22,19 @@ const getDatabaseUrl = () => {
     throw new Error('Database configuration missing. Required: DB_USER, DB_PASSWORD, DB_SERVER, DB_NAME')
   }
 
-  const dbUrl = `postgres://${DB_USER}:${DB_PASSWORD}@${DB_SERVER}:${DB_PORT}/${DB_NAME}`
-  return dbUrl
+  return `postgres://${DB_USER}:${DB_PASSWORD}@${DB_SERVER}:${DB_PORT}/${DB_NAME}`
+}
+
+const getRedisUrl = () => {
+  if (isBuildTime) {
+    return undefined
+  }
+
+  if (process.env.REDIS_AUTH_TOKEN) {
+    return `rediss://:${process.env.REDIS_AUTH_TOKEN}@${process.env.REDIS_PRIMARY_ENDPOINT}:6379`
+  }
+
+  return process.env.REDIS_URL
 }
 
 module.exports = defineConfig({
@@ -73,6 +84,20 @@ module.exports = defineConfig({
             },
           },
         ],
+      },
+    },
+    {
+      resolve: '@medusajs/medusa/cache-redis',
+      options: {
+        redisUrl: getRedisUrl(),
+      },
+    },
+    {
+      resolve: '@medusajs/medusa/workflow-engine-redis',
+      options: {
+        redis: {
+          url: getRedisUrl(),
+        },
       },
     },
   ],

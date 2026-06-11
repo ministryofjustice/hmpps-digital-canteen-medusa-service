@@ -24,11 +24,13 @@
   },
   "dependencies": {
     "@medusajs/admin-sdk": "^2.15.5",
+    "@medusajs/cache-redis": "2.15.5",
     "@medusajs/caching": "2.15.5",
     "@medusajs/cli": "2.15.5",
     "@medusajs/draft-order": "2.15.5",
     "@medusajs/framework": "2.15.5",
     "@medusajs/medusa": "2.15.5",
+    "@medusajs/workflow-engine-redis": "2.15.5",
     "@ministryofjustice/hmpps-auth-clients": "^1.0.2",
     "@ministryofjustice/hmpps-npm-script-allowlist": "0.0.4",
     "@ministryofjustice/hmpps-rest-client": "^1.2.0",

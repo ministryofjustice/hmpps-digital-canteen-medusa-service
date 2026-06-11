@@ -42,6 +42,9 @@ generic-service:
       DB_NAME: "database_name"
       DB_USER: "database_username"
       DB_PASSWORD: "database_password"
+    digital-canteen-redis-secrets:
+      REDIS_PRIMARY_ENDPOINT: "primary_endpoint_address"
+      REDIS_AUTH_TOKEN: "auth_token"
 
   allowlist:
     groups:
