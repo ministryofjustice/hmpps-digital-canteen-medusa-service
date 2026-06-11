@@ -27,7 +27,7 @@ const getDatabaseUrl = () => {
 
 const getRedisUrl = () => {
   if (isBuildTime) {
-    return undefined
+    return 'redis://localhost:6379'
   }
 
   if (process.env.REDIS_AUTH_TOKEN) {
