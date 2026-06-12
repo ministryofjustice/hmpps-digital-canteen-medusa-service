@@ -1,0 +1,30 @@
+name: Deploy PR to dev
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: Build docker image for PR dev deploy
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2
+    with:
+      docker_registry: 'ghcr.io'
+      registry_org: 'ministryofjustice'
+      additional_docker_tag: 'pr-${{ github.event.pull_request.number }}'
+      push: true
+      docker_multiplatform: false
+
+  deploy_dev:
+    name: Deploy to the development environment
+    needs:
+      - build
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2
+    secrets: inherit
+    with:
+      environment: 'dev'
+      app_version: '${{ needs.build.outputs.app_version }}'
+      slack_notification: 'false'
