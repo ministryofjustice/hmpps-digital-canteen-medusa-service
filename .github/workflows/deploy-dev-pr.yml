@@ -1,7 +1,12 @@
 name: Deploy PR to dev
 
 on:
-  workflow_call:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: PR number (used for image tag)
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -14,9 +19,10 @@ jobs:
     with:
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
-      additional_docker_tag: 'pr-${{ github.event.pull_request.number }}'
+      additional_docker_tag: 'pr-${{ inputs.pr_number }}'
       push: true
       docker_multiplatform: false
+      tag_latest: false
 
   deploy_dev:
     name: Deploy to the development environment

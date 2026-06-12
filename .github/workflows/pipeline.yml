@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - '**'
-  pull_request:
-    types: [ labeled ]
   workflow_dispatch:
     inputs:
       additional_docker_tag:
@@ -203,16 +201,6 @@ jobs:
         run: |
           docker stop medusa-test || true
           docker rm medusa-test || true
-
-  deploy_dev_pr:
-    name: Deploy PR to dev environment
-    if: github.ref != 'refs/heads/main' && contains(github.event.pull_request.labels.*.name, 'deploy_dev')
-    needs:
-      - node_build
-      - helm_lint
-      - pr_docker_health_check
-    uses: ./.github/workflows/deploy-dev-pr.yml
-    secrets: inherit
 
   # build docker image
   build:
