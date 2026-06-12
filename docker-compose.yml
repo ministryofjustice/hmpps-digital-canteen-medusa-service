@@ -9,18 +9,7 @@ services:
     ports:
       - "5432:5432"
 
-#  medusa:
-#    build: .
-#    ports:
-#      - "9000:9000"
-#    environment:
-#      DATABASE_URL: postgres://medusa:medusa@postgres:5432/medusaDB
-#      REDIS_URL: redis://redis:6379
-#      JWT_SECRET: supersecret
-#      COOKIE_SECRET: supersecret
-#    depends_on:
-#      - postgres
-#      - redis
-#
-#  redis:
-#    image: redis
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
