@@ -152,13 +152,15 @@ jobs:
         uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
 
       - name: Build Docker image
-        uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
         with:
-          docker_registry: 'ghcr.io'
-          registry_org: 'ministryofjustice'
-          additional_docker_tag: ${{ inputs.additional_docker_tag }}
-          push: true
-          docker_multiplatform: false
+          context: .
+          push: false
+          load: true
+          tags: medusa-test:pr-${{ github.event.pull_request.number || github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Test container startup
         timeout-minutes: 5
         run: |
