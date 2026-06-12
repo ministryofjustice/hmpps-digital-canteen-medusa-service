@@ -30,19 +30,9 @@ generic-service:
     HMPPS_FINANCE_API_URL: "https://prison-api-dev.prison.service.justice.gov.uk"
 
   namespace_secrets:
-    medusa-secrets:
-      JWT_SECRET: "jwt-secret"
-      COOKIE_SECRET: "cookie-secret"
-      ADMIN_EMAIL: "admin-email"
-      ADMIN_PASSWORD: "admin-password"
-    rds-postgresql-instance-output:
-      DB_SERVER: "rds_instance_address"
-      DB_NAME: "database_name"
-      DB_USER: "database_username"
-      DB_PASSWORD: "database_password"
-    hmpps-digital-canteen-api-client-creds:
-      SYSTEM_CLIENT_ID: 'API_CLIENT_ID'
-      SYSTEM_CLIENT_SECRET: 'API_CLIENT_SECRET'
+    digital-canteen-redis-secrets:
+      REDIS_PRIMARY_ENDPOINT: "primary_endpoint_address"
+      REDIS_AUTH_TOKEN: "auth_token"
 
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts

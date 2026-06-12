@@ -109,8 +109,10 @@ spec:
                 secretKeyRef:
                   name: digital-canteen-redis-secrets
                   key: primary_endpoint_address
+                  optional: true
             - name: REDIS_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: digital-canteen-redis-secrets
                   key: auth_token
+                  optional: true
