@@ -205,7 +205,7 @@ jobs:
   # build docker image
   build:
     name: Build docker image from hmpps-github-actions
-    if: github.ref == 'refs/heads/main'
+    #if: github.ref == 'refs/heads/main'
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
     needs:
       - helm_lint
@@ -215,7 +215,7 @@ jobs:
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
       additional_docker_tag: ${{ inputs.additional_docker_tag }}
-      push: ${{ inputs.push || inputs.push == null }}
+      push: true
       docker_multiplatform: false
 
   # Deploy to environment
