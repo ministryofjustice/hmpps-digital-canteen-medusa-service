@@ -33,12 +33,12 @@ spec:
             - -c
             - |
               cd /app/.medusa/server
-              
+
               echo "Checking if admin user exists..."
-              
-              OUTPUT=$(npx medusa user -e "$ADMIN_EMAIL" -p "$ADMIN_PASSWORD" 2>&1)              
+
+              OUTPUT=$(npx medusa user -e "$ADMIN_EMAIL" -p "$ADMIN_PASSWORD" 2>&1)
               EXIT_CODE=$?
-              
+
               if echo "$OUTPUT" | grep -qi "already exists\|duplicate\|unique constraint"; then
                 echo "Admin user already exists, skipping creation"
                 exit 0
@@ -104,3 +104,13 @@ spec:
                 secretKeyRef:
                   name: hmpps-digital-canteen-api-client-creds
                   key: API_CLIENT_SECRET
+            - name: REDIS_PRIMARY_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: digital-canteen-redis-secrets
+                  key: primary_endpoint_address
+            - name: REDIS_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: digital-canteen-redis-secrets
+                  key: auth_token
