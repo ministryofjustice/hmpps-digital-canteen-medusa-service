@@ -155,7 +155,7 @@ jobs:
         uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
         with:
           context: .
-          push: false
+          push: true
           load: true
           tags: medusa-test:pr-${{ github.event.pull_request.number || github.sha }}
           cache-from: type=gha
@@ -200,7 +200,6 @@ jobs:
         if: always()
         run: |
           docker stop medusa-test || true
-          docker rm medusa-test || true
 
   # build docker image
   build:
