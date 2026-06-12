@@ -7,9 +7,6 @@ on:
         description: PR number (used for image tag)
         required: true
         type: string
-  push:
-    branches:
-      - '**'
 
 permissions:
   contents: read
