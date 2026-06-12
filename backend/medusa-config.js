@@ -31,25 +31,29 @@ const getRedisUrl = () => {
   }
   return process.env.REDIS_URL
 }
-const envHasRedis = () => !!getRedisUrl()
 
 const getRedisModules = () => {
-  if (!envHasRedis()) return []
+  const redisUrl = getRedisUrl()
+
+  if (redisUrl) {
+    return [
+      {
+        resolve: '@medusajs/medusa/cache-redis',
+        options: { redisUrl },
+      },
+      {
+        resolve: '@medusajs/medusa/workflow-engine-redis',
+        options: { redis: { redisUrl } },
+      },
+    ]
+  }
 
   return [
     {
-      resolve: '@medusajs/medusa/cache-redis',
-      options: {
-        redisUrl: getRedisUrl(),
-      },
+      resolve: '@medusajs/medusa/cache-inmemory',
     },
     {
-      resolve: '@medusajs/medusa/workflow-engine-redis',
-      options: {
-        redis: {
-          redisUrl: getRedisUrl(),
-        },
-      },
+      resolve: '@medusajs/medusa/workflow-engine-inmemory',
     },
   ]
 }
