@@ -29,8 +29,29 @@ const getRedisUrl = () => {
   if (process.env.REDIS_AUTH_TOKEN) {
     return `rediss://:${process.env.REDIS_AUTH_TOKEN}@${process.env.REDIS_PRIMARY_ENDPOINT}:6379`
   }
-
   return process.env.REDIS_URL
+}
+const envHasRedis = () => !!getRedisUrl()
+
+const getRedisModules = () => {
+  if (!envHasRedis()) return []
+
+  return [
+    {
+      resolve: '@medusajs/medusa/cache-redis',
+      options: {
+        redisUrl: getRedisUrl(),
+      },
+    },
+    {
+      resolve: '@medusajs/medusa/workflow-engine-redis',
+      options: {
+        redis: {
+          redisUrl: getRedisUrl(),
+        },
+      },
+    },
+  ]
 }
 
 module.exports = defineConfig({
@@ -82,20 +103,7 @@ module.exports = defineConfig({
         ],
       },
     },
-    {
-      resolve: '@medusajs/medusa/cache-redis',
-      options: {
-        redisUrl: getRedisUrl(),
-      },
-    },
-    {
-      resolve: '@medusajs/medusa/workflow-engine-redis',
-      options: {
-        redis: {
-          redisUrl: getRedisUrl(),
-        },
-      },
-    },
+    ...getRedisModules(),
   ],
   admin: {
     disable: process.env.DISABLE_MEDUSA_ADMIN === 'true',
