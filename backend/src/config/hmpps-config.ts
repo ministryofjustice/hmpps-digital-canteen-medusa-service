@@ -25,15 +25,4 @@ export const hmppsConfig = {
     systemClientId: get('SYSTEM_CLIENT_ID', 'clientid', requiredInProduction),
     systemClientSecret: get('SYSTEM_CLIENT_SECRET', 'clientsecret', requiredInProduction),
   },
-
-  apis: {
-    finance: {
-      url: get('HMPPS_FINANCE_API_URL', 'https://finance-api-dev.hmpps.service.justice.gov.uk'),
-      timeout: {
-        response: 10000,
-        deadline: 10000,
-      },
-      agent: new AgentConfig(10000),
-    },
-  },
 }
