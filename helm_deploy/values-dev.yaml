@@ -28,6 +28,7 @@ generic-service:
     DISABLE_MEDUSA_TELEMETRY: "true"
     HMPPS_AUTH_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
     HMPPS_FINANCE_API_URL: "https://prison-api-dev.prison.service.justice.gov.uk"
+    HMPPS_DIGITAL_CANTEEN_API: "https://digital-canteen-dev.prison.service.justice.gov.uk/api"
 
   namespace_secrets:
     digital-canteen-redis-secrets:

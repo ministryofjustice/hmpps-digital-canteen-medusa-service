@@ -28,6 +28,7 @@ generic-service:
     DISABLE_MEDUSA_TELEMETRY: "true"
     HMPPS_AUTH_URL: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth"
     HMPPS_FINANCE_API_URL: "https://prison-api-preprod.prison.service.justice.gov.uk"
+    HMPPS_DIGITAL_CANTEEN_API: "https://digital-canteen-preprod.prison.service.justice.gov.uk/api"
 
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts
