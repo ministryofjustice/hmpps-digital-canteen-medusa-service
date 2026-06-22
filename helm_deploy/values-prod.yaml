@@ -28,7 +28,22 @@ generic-service:
     DISABLE_MEDUSA_TELEMETRY: "true"
     HMPPS_AUTH_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth"
     HMPPS_FINANCE_API_URL: "https://prison-api.prison.service.justice.gov.uk"
-    HMPPS_DIGITAL_CANTEEN_API: "https://digital-canteen.prison.service.justice.gov.uk/api"
+    HMPPS_DIGITAL_CANTEEN_API: "https://digital-canteen.prison.service.justice.gov.uk"
+
+  namespace_secrets:
+    medusa-secrets:
+      JWT_SECRET: "jwt-secret"
+      COOKIE_SECRET: "cookie-secret"
+      ADMIN_EMAIL: "admin-email"
+      ADMIN_PASSWORD: "admin-password"
+    rds-postgresql-instance-output:
+      DB_SERVER: "rds_instance_address"
+      DB_NAME: "database_name"
+      DB_USER: "database_username"
+      DB_PASSWORD: "database_password"
+    hmpps-digital-canteen-api-client-creds:
+      SYSTEM_CLIENT_ID: 'API_CLIENT_ID'
+      SYSTEM_CLIENT_SECRET: 'API_CLIENT_SECRET'
 
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts

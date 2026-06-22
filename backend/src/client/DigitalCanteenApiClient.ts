@@ -11,6 +11,6 @@ export default class DigitalCanteenApiClient extends RestClient {
    * Test hmpps digital canteen api
    */
   async testCallToApi(): Promise<string> {
-    return this.get<string>({ path: `/test-request-to-api` }, asSystem())
+    return this.get<string>({ path: `/api/test-request-to-api` }, asSystem())
   }
 }

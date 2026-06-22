@@ -28,7 +28,7 @@ export const apiConfig = {
 
   apis: {
     hmpps_digital_canteen_api: {
-      url: get('HMPPS_DIGITAL_CANTEEN_API', 'http://localhost:8080/api'),
+      url: get('HMPPS_DIGITAL_CANTEEN_API', 'https://digital-canteen-dev.prison.service.justice.gov.uk'),
       timeout: {
         response: 10000,
         deadline: 10000,
