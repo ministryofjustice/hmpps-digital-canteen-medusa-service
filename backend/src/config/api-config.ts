@@ -14,7 +14,7 @@ function get<T>(name: string, fallback: T, requireInProduction = false): T | str
 
 const requiredInProduction = true
 
-export const hmppsConfig = {
+export const apiConfig = {
   auth: {
     url: get('HMPPS_AUTH_URL', 'https://sign-in-dev.hmpps.service.justice.gov.uk/auth'),
     timeout: {
@@ -24,5 +24,18 @@ export const hmppsConfig = {
     agent: new AgentConfig(10000),
     systemClientId: get('SYSTEM_CLIENT_ID', 'clientid', requiredInProduction),
     systemClientSecret: get('SYSTEM_CLIENT_SECRET', 'clientsecret', requiredInProduction),
+  },
+
+  apis: {
+    hmpps_digital_canteen_api: {
+      url: get('HMPPS_DIGITAL_CANTEEN_API', 'https://digital-canteen-dev.prison.service.justice.gov.uk'),
+      timeout: {
+        response: 10000,
+        deadline: 10000,
+      },
+      agent: new AgentConfig(10000),
+      systemClientId: get('SYSTEM_CLIENT_ID', 'clientid', requiredInProduction),
+      systemClientSecret: get('SYSTEM_CLIENT_SECRET', 'clientsecret', requiredInProduction),
+    },
   },
 }
