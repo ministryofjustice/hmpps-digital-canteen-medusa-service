@@ -7,44 +7,66 @@ import {
   createShippingOptionsWorkflow,
   createShippingProfilesWorkflow,
   createStockLocationsWorkflow,
-  createStoresWorkflow,
-  createTaxRegionsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
   linkSalesChannelsToStockLocationWorkflow,
+  updateStoresWorkflow,
 } from '@medusajs/medusa/core-flows'
 
-export default async function initial_data_seed({ container }: { container: MedusaContainer }) {
+/**
+ * Pin Phone Credit seed migration.
+ *
+ * Pin credit is a national product, single Region
+ *
+ */
+export default async function pin_credit_seed({ container }: { container: MedusaContainer }) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const link = container.resolve(ContainerRegistrationKeys.LINK)
   const fulfillmentModuleService = container.resolve(ModuleRegistrationName.FULFILLMENT)
+  const storeModuleService = container.resolve(Modules.STORE)
 
   const countries = ['gb']
 
-  // Creates the sales channel through which products are sold.
-  logger.info('Seeding store data')
+  logger.info('Seeding pin phone credit data')
 
+  // Creates single  region covering the whole of the UK.
+  /* TODO pp_system_default is built in default provider, to be replaced with pin phone credit payment provider */
+  const {
+    result: [region],
+  } = await createRegionsWorkflow(container).run({
+    input: {
+      regions: [
+        {
+          name: 'Pin Phone Credit - United Kingdom',
+          currency_code: 'gbp',
+          countries,
+          payment_providers: ['pp_system_default'],
+        },
+      ],
+    },
+  })
+
+  // Creates the sales channel
   const {
     result: [digitalSalesChannel],
   } = await createSalesChannelsWorkflow(container).run({
     input: {
       salesChannelsData: [
         {
-          name: 'Digital Sales Channel',
-          description: 'Sales channel for digital products',
+          name: 'Pin Phone Credit Sales Channel',
+          description: 'Sales channel for pin phone credit products',
         },
       ],
     },
   })
 
   // Creates a publishable API key and links it to the sales channel.
-  // Publishable API key can scope requests to sales channels, when we have multiple
   const {
     result: [publishablePinCreditApiKey],
   } = await createApiKeysWorkflow(container).run({
     input: {
       api_keys: [
         {
-          title: 'Pin Credit Publishable API Key',
+          title: 'Pin Phone Credit Publishable API Key',
           type: 'publishable',
           created_by: '',
         },
@@ -59,58 +81,27 @@ export default async function initial_data_seed({ container }: { container: Medu
     },
   })
 
-  // Creates the store, which is the top-level entity in Medusa.
-  await createStoresWorkflow(container).run({
+  // Sets the store's default sales channel.
+  // This may change later on, but for now pin credit is only sales channel
+  const [store] = await storeModuleService.listStores()
+  await updateStoresWorkflow(container).run({
     input: {
-      stores: [
-        {
-          name: 'Digital Canteen Store',
-          supported_currencies: [
-            {
-              currency_code: 'gbp',
-              is_default: true,
-            },
-          ],
-          default_sales_channel_id: digitalSalesChannel.id,
-        },
-      ],
+      selector: { id: store.id },
+      update: { default_sales_channel_id: digitalSalesChannel.id },
     },
-  })
-
-  // Creates a region representing the UK.
-  const { result: regionResult } = await createRegionsWorkflow(container).run({
-    input: {
-      regions: [
-        {
-          name: 'United Kingdom',
-          currency_code: 'gbp',
-          countries,
-          // pp_system_default is Medusa's built-in placeholder payment provider, to be replaced with a real BT payment provider
-          payment_providers: ['pp_system_default'],
-        },
-      ],
-    },
-  })
-  const region = regionResult[0]
-
-  // Creates tax regions for each country.
-  // tp_system is Medusa's built-in tax provider.
-  await createTaxRegionsWorkflow(container).run({
-    input: countries.map(country_code => ({
-      country_code,
-      provider_id: 'tp_system',
-    })),
   })
 
   // Creates a stock location representing where inventory is held.
-  // Even for digital products a stock location is required by Medusa
-  const { result: stockLocationResult } = await createStockLocationsWorkflow(container).run({
+  // Digital products still require a stock location by Medusa.
+  const {
+    result: [stockLocation],
+  } = await createStockLocationsWorkflow(container).run({
     input: {
       locations: [
         {
-          name: 'Digital Warehouse',
+          name: 'Pin Phone Credit Digital Warehouse',
           address: {
-            city: 'Belfast',
+            city: 'United Kingdom',
             country_code: 'GB',
             address_1: '',
           },
@@ -118,11 +109,9 @@ export default async function initial_data_seed({ container }: { container: Medu
       ],
     },
   })
-  const stockLocation = stockLocationResult[0]
 
   // Links the fulfillment provider to the stock location.
-  // manual_manual is Medusa's built-in fulfillment provider.
-  // To be replaced with a real  fulfillment provider when we have one.
+  // Digital products still require a fulfillment provider.
   await link.create({
     [Modules.STOCK_LOCATION]: {
       stock_location_id: stockLocation.id,
@@ -132,8 +121,7 @@ export default async function initial_data_seed({ container }: { container: Medu
     },
   })
 
-  // Links the sales channel to the stock location so that products
-  // sold through the Digital Sales Channel are fulfilled from the Digital Warehouse.
+  // Links the sales channel to the stock location.
   await linkSalesChannelsToStockLocationWorkflow(container).run({
     input: {
       id: stockLocation.id,
@@ -142,37 +130,36 @@ export default async function initial_data_seed({ container }: { container: Medu
   })
 
   // Creates a shipping profile for digital products.
-  const { result: digitalShippingProfileResult } = await createShippingProfilesWorkflow(container).run({
+  // Digital products still require a shipping profile provider.
+  const {
+    result: [digitalShippingProfile],
+  } = await createShippingProfilesWorkflow(container).run({
     input: {
       data: [
         {
-          name: 'Digital Delivery',
+          name: 'Pin Phone Credit Digital Delivery',
           type: 'default',
         },
       ],
     },
   })
-  const digitalShippingProfile = digitalShippingProfileResult[0]
 
-  // Creates a fulfillment set with a service zone covering the UK.
+  // Creates a fulfillment set.
   const fulfillmentSet = await fulfillmentModuleService.createFulfillmentSets({
-    name: 'Digital fulfilment',
+    name: 'Pin Phone Credit Digital fulfilment',
     type: 'shipping',
     service_zones: [
       {
         name: 'United Kingdom',
-        geo_zones: [
-          {
-            country_code: 'gb',
-            type: 'country',
-          },
-        ],
+        geo_zones: countries.map(country_code => ({
+          country_code,
+          type: 'country' as const,
+        })),
       },
     ],
   })
 
-  // Links the fulfillment set to the stock location so Medusa knows
-  // which fulfillment set handles orders from the Digital Warehouse.
+  // Links the fulfillment set to the stock location
   await link.create({
     [Modules.STOCK_LOCATION]: {
       stock_location_id: stockLocation.id,
@@ -183,19 +170,18 @@ export default async function initial_data_seed({ container }: { container: Medu
   })
 
   // Creates a shipping option for instant digital delivery at £0.
-  // Digital products have no shipping cost
   await createShippingOptionsWorkflow(container).run({
     input: [
       {
-        name: 'Instant Digital Delivery',
+        name: 'Pin Phone Credit Instant Digital Delivery',
         price_type: 'flat',
         provider_id: 'manual_manual',
         service_zone_id: fulfillmentSet.service_zones[0].id,
         shipping_profile_id: digitalShippingProfile.id,
         type: {
-          label: 'Digital',
+          label: 'Pin Phone Credit Digital',
           description: 'Instant delivery',
-          code: 'digital',
+          code: 'pin-credit-digital',
         },
         prices: [
           {
@@ -222,4 +208,6 @@ export default async function initial_data_seed({ container }: { container: Medu
       },
     ],
   })
+
+  logger.info('Pin phone credit seed complete')
 }
