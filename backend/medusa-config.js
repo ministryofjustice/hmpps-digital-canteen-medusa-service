@@ -84,7 +84,15 @@ module.exports = defineConfig({
         }
       : undefined,
   },
-  modules: getRedisModules(),
+  modules: [
+    ...getRedisModules(),
+    {
+      resolve: './src/modules/prisoner-details',
+      definition: {
+        isQueryable: true,
+      },
+    },
+  ],
   admin: {
     disable: process.env.DISABLE_MEDUSA_ADMIN === 'true',
     backendUrl: process.env.MEDUSA_BACKEND_URL !== undefined ? process.env.MEDUSA_BACKEND_URL : 'http://localhost:9000',
