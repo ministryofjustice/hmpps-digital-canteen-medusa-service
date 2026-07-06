@@ -21,7 +21,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
 
     if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({
-            message: "You must provide at least one item",
+            message: "Cart is empty",
         })
     }
 
