@@ -1,7 +1,7 @@
 import { container, MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { createCartWorkflow } from '@medusajs/medusa/core-flows'
 import { Modules, ContainerRegistrationKeys, ModuleRegistrationName } from '@medusajs/framework/utils'
-import { PRISONER_MODULE } from '../../../modules/prisoner-details'
+import { PRISONER_MODULE } from '../../../../modules/prisoner-details'
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const { metadata } = req.body as {
@@ -12,7 +12,9 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       second_name: string
     }
   }
-  const { prison_id, offender_no, first_name, second_name } = metadata
+    console.log("req.body:" , metadata)
+
+    const { prison_id, offender_no, first_name, second_name } = metadata
   const prisonerService = container.resolve(PRISONER_MODULE)
   const customerService = container.resolve(Modules.CUSTOMER)
   const link = container.resolve(ContainerRegistrationKeys.LINK)
