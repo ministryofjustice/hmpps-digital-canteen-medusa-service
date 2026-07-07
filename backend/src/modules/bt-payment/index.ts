@@ -1,7 +1,7 @@
-import BtPaymentProviderService from "./BtPaymentProviderService";
-import {ModuleProvider} from "@medusajs/utils";
-import {Modules} from "@medusajs/framework/utils";
+import { ModuleProvider } from '@medusajs/utils'
+import { Modules } from '@medusajs/framework/utils'
+import BtPaymentProviderService from './BtPaymentProviderService'
 
 export default ModuleProvider(Modules.PAYMENT, {
-    services: [BtPaymentProviderService],
+  services: [BtPaymentProviderService],
 })

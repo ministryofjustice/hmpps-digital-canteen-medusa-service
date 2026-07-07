@@ -1,68 +1,50 @@
-import {
-    MedusaRequest,
-    MedusaResponse,
-} from "@medusajs/framework/http"
-import { addToCartWorkflow } from "@medusajs/medusa/core-flows"
-import { Modules, ModuleRegistrationName } from "@medusajs/framework/utils"
-
-type CartItemInput = {
-    variant_id: string
-    quantity: number
-    unit_price?: number
-    requires_shipping?: boolean
-}
+import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
+import { addToCartWorkflow } from '@medusajs/medusa/core-flows'
+import { Modules, ModuleRegistrationName } from '@medusajs/framework/utils'
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-    const { id } = req.params
+  try {
+    const { id: cartId } = req.params
+    const { amount } = req.body as { amount: number }
 
-    const { items } = req.body as {
-        items: CartItemInput[]
+    const productModule = req.scope.resolve(ModuleRegistrationName.PRODUCT)
+    const cartModule = req.scope.resolve(Modules.CART)
+
+    // Fetch the PIN-PHONE-CREDIT variant
+    const [pinPhoneVariant] = await productModule.listProductVariants({
+      sku: 'PIN-PHONE-CREDIT',
+    })
+
+    if (!pinPhoneVariant) {
+      return res.status(404).json({
+        message: 'PIN Phone variant not found. Please check the SKU and try again.',
+      })
     }
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({
-            message: "Cart is empty",
-        })
-    }
-
-    const productModuleService = req.scope.resolve(
-        ModuleRegistrationName.PRODUCT
-    )
-
-    // Validate all variants exist
-    const validatedItems: CartItemInput[] = []
-    for (const item of items) {
-        const [variant] = await productModuleService.listProductVariants({
-            id: item.variant_id,
-        })
-
-        if (!variant) {
-            return res.status(404).json({
-                message: `Variant not found: ${item.variant_id}`,
-            })
-        }
-
-        validatedItems.push({
-            variant_id: variant.id,
-            quantity: item.quantity,
-            unit_price: item.unit_price,
-            requires_shipping: item.requires_shipping,
-        })
-    }
-
-    // Add all items to cart in one workflow call
+    // Add item to cart
     await addToCartWorkflow(req.scope).run({
-        input: {
-            cart_id: id,
-            items: validatedItems,
-        },
+      input: {
+        cart_id: cartId,
+        items: [
+          {
+            variant_id: pinPhoneVariant.id,
+            quantity: 1,
+            unit_price: amount,
+            requires_shipping: false,
+          },
+        ],
+      },
     })
 
     // Retrieve updated cart
-    const cartModuleService = req.scope.resolve(Modules.CART)
-    const cart = await cartModuleService.retrieveCart(id, {
-        relations: ["items"],
+    const cart = await cartModule.retrieveCart(cartId, {
+      relations: ['items'],
     })
-
-    res.status(200).json({ cart })
+    return res.status(200).json({ cart })
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Failed to add pin phone to cart',
+      error: error instanceof Error ? error.message : error,
+    })
+  }
 }

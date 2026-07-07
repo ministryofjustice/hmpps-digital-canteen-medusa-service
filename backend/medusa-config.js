@@ -95,15 +95,15 @@ module.exports = defineConfig({
     {
       resolve: '@medusajs/medusa/payment',
       options: {
-          providers: [
-              {
-                  id: "bt-payment",
-                  resolve: './src/modules/bt-payment',
-                  options: {
-                      clientName: 'Digital Canteen Medusa',
-                  },
-              },
-          ],
+        providers: [
+          {
+            id: 'bt-payment',
+            resolve: './src/modules/bt-payment',
+            options: {
+              clientName: 'Digital Canteen Medusa',
+            },
+          },
+        ],
       },
     },
   ],

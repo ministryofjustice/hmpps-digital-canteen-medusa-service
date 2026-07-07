@@ -1,4 +1,4 @@
-import { container, MedusaRequest, MedusaResponse } from '@medusajs/framework'
+import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { createCartWorkflow } from '@medusajs/medusa/core-flows'
 import { Modules, ContainerRegistrationKeys, ModuleRegistrationName } from '@medusajs/framework/utils'
 import { PRISONER_MODULE } from '../../../../modules/prisoner-details'
@@ -12,13 +12,13 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       second_name: string
     }
   }
-    console.log("req.body:" , metadata)
 
-    const { prison_id, offender_no, first_name, second_name } = metadata
-  const prisonerService = container.resolve(PRISONER_MODULE)
-  const customerService = container.resolve(Modules.CUSTOMER)
-  const link = container.resolve(ContainerRegistrationKeys.LINK)
-  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const { prison_id, offender_no, first_name, second_name } = metadata
+  const prisonerService = req.scope.resolve(PRISONER_MODULE)
+  const customerService = req.scope.resolve(Modules.CUSTOMER)
+  const link = req.scope.resolve(ContainerRegistrationKeys.LINK)
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const regionModuleService = req.scope.resolve(ModuleRegistrationName.REGION)
 
   const [existingPrisoner] = await prisonerService.listPrisoners({
     prison_id,
@@ -66,7 +66,6 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     customerId = customer.id
   }
 
-  const regionModuleService = container.resolve(ModuleRegistrationName.REGION)
   // Create cart using Pin Phone Credit region
   const [region] = await regionModuleService.listRegions({ name: 'Pin Phone Credit - United Kingdom' })
 
