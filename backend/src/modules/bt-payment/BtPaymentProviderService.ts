@@ -27,7 +27,7 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
 
   static PROVIDER = 'bt-payment'
 
-  constructor(container: any, options: any) {
+  constructor(container: Record<string, unknown>, options: Record<string, unknown> | undefined) {
     super(container, options)
   }
 

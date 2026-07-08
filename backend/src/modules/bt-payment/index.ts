@@ -1,5 +1,4 @@
-import { ModuleProvider } from '@medusajs/utils'
-import { Modules } from '@medusajs/framework/utils'
+import { ModuleProvider, Modules } from '@medusajs/framework/utils'
 import BtPaymentProviderService from './BtPaymentProviderService'
 
 export default ModuleProvider(Modules.PAYMENT, {
