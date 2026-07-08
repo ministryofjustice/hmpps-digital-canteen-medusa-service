@@ -12,9 +12,15 @@ export default [
     },
   },
   {
-    files: ['backend/src/migration-scripts/**/*.ts'],
+    files: ['backend/src/**/*.ts'],
     rules: {
       camelcase: 'off',
+    },
+  },
+  {
+    files: ['**/*.test.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ]

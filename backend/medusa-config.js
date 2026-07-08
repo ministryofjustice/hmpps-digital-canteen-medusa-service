@@ -84,7 +84,29 @@ module.exports = defineConfig({
         }
       : undefined,
   },
-  modules: getRedisModules(),
+  modules: [
+    ...getRedisModules(),
+    {
+      resolve: './src/modules/prisoner-details',
+      definition: {
+        isQueryable: true,
+      },
+    },
+    {
+      resolve: '@medusajs/medusa/payment',
+      options: {
+        providers: [
+          {
+            id: 'bt-payment',
+            resolve: './src/modules/bt-payment',
+            options: {
+              clientName: 'Digital Canteen Medusa',
+            },
+          },
+        ],
+      },
+    },
+  ],
   admin: {
     disable: process.env.DISABLE_MEDUSA_ADMIN === 'true',
     backendUrl: process.env.MEDUSA_BACKEND_URL !== undefined ? process.env.MEDUSA_BACKEND_URL : 'http://localhost:9000',
