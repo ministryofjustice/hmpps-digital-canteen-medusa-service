@@ -22,6 +22,8 @@ import {
   type WebhookActionResult,
 } from '@medusajs/framework/types'
 
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 class BtPaymentProviderService extends AbstractPaymentProvider {
   static identifier = 'bt-payment'
 
