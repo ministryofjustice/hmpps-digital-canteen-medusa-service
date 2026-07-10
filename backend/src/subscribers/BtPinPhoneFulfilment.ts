@@ -6,6 +6,8 @@ import {
   createOrderFulfillmentWorkflow,
 } from '@medusajs/medusa/core-flows'
 
+const PIN_PHONE_PRODUCT_TYPE = 'pin-phone-credit-digital-product'
+
 export default async function digitalFulfillmentHandler({
   event: { data },
   container,
@@ -13,11 +15,9 @@ export default async function digitalFulfillmentHandler({
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const orderId = data.id
-  const PIN_PHONE_PRODUCT_TYPE = 'pin-phone-credit-digital-product'
 
   logger.info(`Processing digital order ${orderId}...`)
 
-  // Retrieve order with items and payment info
   const {
     data: [order],
   } = await query.graph({
@@ -45,11 +45,8 @@ export default async function digitalFulfillmentHandler({
     const payment = paymentCollection?.payments?.find(paymentInfo => paymentInfo?.captured_at === null)
     if (payment) {
       logger.info(`Capturing payment for order ${orderId}`)
-
       await capturePaymentWorkflow(container).run({
-        input: {
-          payment_id: payment.id,
-        },
+        input: { payment_id: payment.id },
       })
     } else {
       logger.info(`Payment already captured for order ${orderId}`)
@@ -73,9 +70,7 @@ export default async function digitalFulfillmentHandler({
     })
 
     await completeOrderWorkflow(container).run({
-      input: {
-        orderIds: [orderId],
-      },
+      input: { orderIds: [orderId] },
     })
 
     logger.info(`Digital fulfilment complete for order ${orderId}`)
