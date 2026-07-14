@@ -15,6 +15,16 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
   let cartModuleService: any
   let paymentModuleService: any
 
+  const validPaymentResult = {
+    offender_no: 'G916XXX',
+    status: 'authorised',
+    transactionBatchNumber: '12345',
+    transactionReference: '12345',
+    holdNumber: '54321',
+    errorCode: null,
+    errorMessage: null,
+  }
+
   beforeEach(() => {
     // Mock logger
     logger = { warn: jest.fn(), info: jest.fn(), error: jest.fn() }
@@ -31,7 +41,6 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
       createPaymentSession: jest.fn().mockResolvedValue({
         id: 'pay_session_123',
       }),
-      retrievePaymentSession: jest.fn(),
     }
 
     const mockedCreatePaymentCollectionForCartWorkflow = createPaymentCollectionForCartWorkflow as unknown as jest.Mock
@@ -54,8 +63,7 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
     req = {
       params: { id: 'cart_123' },
       body: {
-        offender_no: 'G916XXX',
-        items: [{ id: 'item_1', quantity: 1 }],
+        PaymentResult: validPaymentResult,
       },
       scope: {
         resolve: jest.fn(key => {
@@ -101,7 +109,7 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
         provider_id: 'pp_bt-payment_bt-payment',
         amount: 500,
         currency_code: 'gbp',
-        data: { offender_no: 'G916XXX', amount: 500 },
+        data: { ...validPaymentResult },
       }),
     )
 
@@ -111,33 +119,31 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
     })
   })
 
-  it('returns 400 and returns error on payment error', async () => {
+  it('returns 200 and returns error on payment error', async () => {
     cartModuleService.retrieveCart.mockResolvedValue({
       id: 'cart_123',
       items: [{ unit_price: 500 }],
     })
 
+    req.body.PaymentResult = {
+      offender_no: 'G916XXX',
+      status: 'error',
+      errorCode: 'BT ded :c',
+      errorMessage: 'BT unreachable',
+    }
+
     const mockedCompleteCartWorkflow = completeCartWorkflow as unknown as jest.Mock
     mockedCompleteCartWorkflow.mockReturnValue({
-      run: jest.fn().mockRejectedValue(new Error()),
-    })
-
-    paymentModuleService.retrievePaymentSession.mockResolvedValue({
-      id: 'pay_session_123',
-      data: {
-        error_code: 'PROVIDER_DECLINED_INSUFFICIENT_FUNDS',
-        error_message: 'Insufficient funds',
-      },
+      run: jest.fn().mockRejectedValue(new Error('Payment not authorised')),
     })
 
     await POST(req, res)
 
-    expect(paymentModuleService.retrievePaymentSession).toHaveBeenCalledWith('pay_session_123')
     expect(logger.error).toHaveBeenCalled()
-    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.status).toHaveBeenCalledWith(200)
     expect(res.json).toHaveBeenCalledWith({
-      message: 'Insufficient funds',
-      code: 'PROVIDER_DECLINED_INSUFFICIENT_FUNDS',
+      code: 'BT ded :c',
+      message: 'BT unreachable',
     })
   })
 
