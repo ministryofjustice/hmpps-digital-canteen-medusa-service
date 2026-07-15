@@ -4,7 +4,7 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 export interface PaymentResult {
   offender_no: string
-  status: 'authorised' | 'error' | 'cancelled'
+  status: 'AUTHORISED' | 'ERROR' | 'CANCELLED'
   transactionBatchNumber?: string
   transactionReference?: string
   holdNumber?: number

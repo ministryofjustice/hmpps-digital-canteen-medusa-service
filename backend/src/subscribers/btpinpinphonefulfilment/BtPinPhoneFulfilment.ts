@@ -8,10 +8,7 @@ import {
 
 const PIN_PHONE_PRODUCT_TYPE = 'pin-phone-credit-digital-product'
 
-export default async function digitalFulfillmentHandler({
-  event: { data },
-  container,
-}: SubscriberArgs<{ id: string }>) {
+export default async function BtPinPhoneFulfilment({ event: { data }, container }: SubscriberArgs<{ id: string }>) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const orderId = data.id
