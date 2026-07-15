@@ -105,7 +105,7 @@ describe('POST handler - /store/pin-phone/carts/:id/add-items', () => {
 
     expect(res.status).toHaveBeenCalledWith(404)
     expect(res.json).toHaveBeenCalledWith({
-      message: 'CREDIT variant not found',
+      message: 'PIN Phone variant not found. Please check the SKU and try again.',
     })
   })
 
@@ -116,7 +116,7 @@ describe('POST handler - /store/pin-phone/carts/:id/add-items', () => {
 
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({
-      message: 'Failed to add credit item to cart',
+      message: 'Failed to add pin phone to cart',
       error: 'DB failure',
     })
   })

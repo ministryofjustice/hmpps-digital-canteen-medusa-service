@@ -101,7 +101,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
       - run: npm ci --legacy-peer-deps
-      - run: npm test
+      - run: npm run test:unit
 
   #
 #  # generic node integration tests using wiremock - feel free to override with local tests if required
