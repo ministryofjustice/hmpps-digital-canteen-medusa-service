@@ -4,7 +4,7 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 export interface PaymentResult {
   offender_no: string
-  status: 'AUTHORISED' | 'ERROR' | 'CANCELLED'
+  status: 'AUTHORIZED' | 'ERROR' | 'CANCELLED'
   transactionReference?: string
   holdNumber?: number
   errorCode?: string
@@ -14,7 +14,6 @@ export interface PaymentResult {
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params
   const { PaymentResult } = req.body as { PaymentResult: PaymentResult }
-
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER)
   const cartModuleService = req.scope.resolve(Modules.CART)
   const cart = await cartModuleService.retrieveCart(id, { relations: ['items'] })
