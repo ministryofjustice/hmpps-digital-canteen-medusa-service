@@ -1,118 +1,114 @@
 import { AbstractPaymentProvider, PaymentSessionStatus } from '@medusajs/framework/utils'
-import {
-  type AuthorizePaymentInput,
-  type AuthorizePaymentOutput,
-  type CancelPaymentInput,
-  type CancelPaymentOutput,
-  type CapturePaymentInput,
-  type CapturePaymentOutput,
-  type DeletePaymentInput,
-  type DeletePaymentOutput,
-  type GetPaymentStatusInput,
-  type GetPaymentStatusOutput,
-  type InitiatePaymentInput,
-  type InitiatePaymentOutput,
-  type ProviderWebhookPayload,
-  type RefundPaymentInput,
-  type RefundPaymentOutput,
-  type RetrievePaymentInput,
-  type RetrievePaymentOutput,
-  type UpdatePaymentInput,
-  type UpdatePaymentOutput,
-  type WebhookActionResult,
+import type {
+  Logger,
+  AuthorizePaymentInput,
+  AuthorizePaymentOutput,
+  CancelPaymentOutput,
+  CapturePaymentInput,
+  CapturePaymentOutput,
+  DeletePaymentOutput,
+  GetPaymentStatusOutput,
+  InitiatePaymentInput,
+  InitiatePaymentOutput,
+  RefundPaymentOutput,
+  RetrievePaymentOutput,
+  UpdatePaymentOutput,
+  WebhookActionResult,
 } from '@medusajs/framework/types'
+import { randomUUID } from 'node:crypto'
+import { PaymentResult } from '../../api/store/pin-phone/carts/[id]/complete/route'
 
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+type InjectedDependencies = {
+  logger: Logger
+}
+
 class BtPaymentProviderService extends AbstractPaymentProvider {
   static identifier = 'bt-payment'
 
-  static PROVIDER = 'bt-payment'
+  protected logger: Logger
 
-  constructor(container: Record<string, unknown>, options: Record<string, unknown> | undefined) {
+  constructor(container: InjectedDependencies, options: Record<string, unknown>) {
     super(container, options)
+    this.logger = container.logger
   }
 
-  /**
-   * Initialize a new payment session
-   */
   async initiatePayment(input: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
-    console.log('INITIATING  payment for prisoner:')
+    const data = input.data as PaymentResult | undefined
+
+    if (!data?.offender_no) {
+      throw new Error('Missing required offender_no')
+    }
+
+    this.logger.info(`Initiating payment for prisoner ${data.offender_no}`)
+
     return {
-      ...input.data,
-      id: `mock_${Date}`,
+      id: `bt_${randomUUID()}`,
+      status: PaymentSessionStatus.PENDING,
+      data: { ...data },
     }
   }
 
-  /**
-     * Authorize payment
-
-     */
   async authorizePayment(input: AuthorizePaymentInput): Promise<AuthorizePaymentOutput> {
-    console.log('AUTHORIZING payment for prisoner:')
+    const data = input.data as PaymentResult | undefined
 
-    // here we will do BT payment authorization and payment
+    if (data?.status !== 'AUTHORISED') {
+      this.logger.error(`Payment failed for prisoner ${data?.offender_no}: ${data?.errorMessage}`)
+      return {
+        status: PaymentSessionStatus.ERROR,
+        data: {
+          ...data,
+        },
+      }
+    }
+
+    this.logger.info(`Payment authorised for prisoner ${data.offender_no}, ref: ${data.transactionReference}`)
+
     return {
       status: PaymentSessionStatus.AUTHORIZED,
-      data: {},
+      data: { ...data },
     }
   }
 
-  /**
-   * Capture payment
-   */
   async capturePayment(input: CapturePaymentInput): Promise<CapturePaymentOutput> {
-    console.log('CAPTURING payment for prisoner:')
-    return { data: input.data }
+    const data = input.data as PaymentResult | undefined
+
+    this.logger.info(`Capturing payment for offender ${data?.offender_no}`)
+
+    return {
+      data: {
+        ...data,
+        captured_at: new Date().toISOString(),
+      },
+    }
   }
 
-  /**
-   * NOT IMPLEMENTED
-   */
-  async cancelPayment(input: CancelPaymentInput): Promise<CancelPaymentOutput> {
-    throw new Error('not implemented yet')
+  // Unimplemented (required by AbstractPaymentProvider)
+  async cancelPayment(): Promise<CancelPaymentOutput> {
+    throw new Error('cancelPayment not implemented')
   }
 
-  /**
-   * NOT IMPLEMENTED
-   */
-  async deletePayment(input: DeletePaymentInput): Promise<DeletePaymentOutput> {
-    throw new Error('not implemented yet')
+  async deletePayment(): Promise<DeletePaymentOutput> {
+    throw new Error('deletePayment not implemented')
   }
 
-  /**
-   * NOT IMPLEMENTED
-   */
-  async updatePayment(input: UpdatePaymentInput): Promise<UpdatePaymentOutput> {
-    throw new Error('not implemented yet')
+  async updatePayment(): Promise<UpdatePaymentOutput> {
+    throw new Error('updatePayment not implemented')
   }
 
-  /**
-   * NOT IMPLEMENTED
-   */
-  async getPaymentStatus(input: GetPaymentStatusInput): Promise<GetPaymentStatusOutput> {
-    throw new Error('not implemented yet')
+  async getPaymentStatus(): Promise<GetPaymentStatusOutput> {
+    throw new Error('getPaymentStatus not implemented')
   }
 
-  /**
-   * NOT IMPLEMENTED
-   */
-  async retrievePayment(input: RetrievePaymentInput): Promise<RetrievePaymentOutput> {
-    throw new Error('not implemented yet')
+  async retrievePayment(): Promise<RetrievePaymentOutput> {
+    throw new Error('retrievePayment not implemented')
   }
 
-  /**
-   * NOT IMPLEMENTED
-   */
-  async refundPayment(input: RefundPaymentInput): Promise<RefundPaymentOutput> {
-    throw new Error('not implemented yet')
+  async refundPayment(): Promise<RefundPaymentOutput> {
+    throw new Error('refundPayment not implemented')
   }
 
-  /**
-   * NOT IMPLEMENTED
-   */
-  getWebhookActionAndData(data: ProviderWebhookPayload['payload']): Promise<WebhookActionResult> {
-    throw new Error('not implemented yet')
+  async getWebhookActionAndData(): Promise<WebhookActionResult> {
+    throw new Error('getWebhookActionAndData not implemented')
   }
 }
 

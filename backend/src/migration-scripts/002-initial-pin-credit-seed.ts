@@ -39,7 +39,7 @@ export default async function pin_credit_seed({ container }: { container: Medusa
           name: 'Pin Phone Credit - United Kingdom',
           currency_code: 'gbp',
           countries,
-          payment_providers: ['pp_system_default'],
+          payment_providers: ['pp_bt-payment_bt-payment'],
         },
       ],
     },

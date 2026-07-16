@@ -15,6 +15,16 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
   let cartModuleService: any
   let paymentModuleService: any
 
+  const validPaymentResult = {
+    offender_no: 'G916XXX',
+    status: 'authorised',
+    transactionBatchNumber: '12345',
+    transactionReference: '12345',
+    holdNumber: '54321',
+    errorCode: null,
+    errorMessage: null,
+  }
+
   beforeEach(() => {
     // Mock logger
     logger = { warn: jest.fn(), info: jest.fn(), error: jest.fn() }
@@ -53,7 +63,7 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
     req = {
       params: { id: 'cart_123' },
       body: {
-        items: [{ id: 'item_1', quantity: 1 }],
+        PaymentResult: validPaymentResult,
       },
       scope: {
         resolve: jest.fn(key => {
@@ -99,12 +109,41 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
         provider_id: 'pp_bt-payment_bt-payment',
         amount: 500,
         currency_code: 'gbp',
+        data: { ...validPaymentResult },
       }),
     )
 
     expect(res.status).toHaveBeenCalledWith(200)
     expect(res.json).toHaveBeenCalledWith({
       order: { id: 'order_123' },
+    })
+  })
+
+  it('returns 200 and returns error on payment error', async () => {
+    cartModuleService.retrieveCart.mockResolvedValue({
+      id: 'cart_123',
+      items: [{ unit_price: 500 }],
+    })
+
+    req.body.PaymentResult = {
+      offender_no: 'G916XXX',
+      status: 'error',
+      errorCode: 'BT ded :c',
+      errorMessage: 'BT unreachable',
+    }
+
+    const mockedCompleteCartWorkflow = completeCartWorkflow as unknown as jest.Mock
+    mockedCompleteCartWorkflow.mockReturnValue({
+      run: jest.fn().mockRejectedValue(new Error('Payment not authorised')),
+    })
+
+    await POST(req, res)
+
+    expect(logger.error).toHaveBeenCalled()
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith({
+      code: 'BT ded :c',
+      message: 'BT unreachable',
     })
   })
 
@@ -116,8 +155,10 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
 
     await POST(req, res)
 
-    expect(logger.warn).toHaveBeenCalledWith('No cart items found')
-    expect(res.status).not.toHaveBeenCalled()
-    expect(res.json).not.toHaveBeenCalled()
+    expect(logger.error).toHaveBeenCalledWith('No cart items found')
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'No cart items found',
+    })
   })
 })
