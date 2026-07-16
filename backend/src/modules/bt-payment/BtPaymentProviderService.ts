@@ -51,7 +51,7 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
   async authorizePayment(input: AuthorizePaymentInput): Promise<AuthorizePaymentOutput> {
     const data = input.data as PaymentResult | undefined
 
-    if (data?.status !== 'AUTHORISED') {
+    if (data?.status !== 'AUTHORIZED') {
       this.logger.error(`Payment failed for prisoner ${data?.offender_no}: ${data?.errorMessage}`)
       return {
         status: PaymentSessionStatus.ERROR,

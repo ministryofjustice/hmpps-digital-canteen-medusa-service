@@ -52,7 +52,7 @@ describe('BtPaymentProviderService', () => {
       const result = await btPaymentProviderService.authorizePayment({
         data: {
           offender_no: 'ABC123',
-          status: 'AUTHORISED',
+          status: 'AUTHORIZED',
           transactionBatchNumber: 'random ref',
           transactionReference: 'random ref',
           holdNumber: '123456',
