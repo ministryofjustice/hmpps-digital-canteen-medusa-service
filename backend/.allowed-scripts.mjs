@@ -12,7 +12,7 @@ export default configureAllowedScripts({
     'node_modules/msgpackr-extract@3.0.4': ['install'],
 
     // Protocol buffers
-    'node_modules/protobufjs@7.6.4': ['postinstall'],
+    'node_modules/protobufjs@7.6.5': ['postinstall'],
 
     // ESBuild is written in GoLang - this is needed to download prebuilt binaries for the specific platform
     'node_modules/esbuild@0.21.5': 'ALLOW',
