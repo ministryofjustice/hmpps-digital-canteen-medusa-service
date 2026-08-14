@@ -11,6 +11,87 @@ export interface PaymentResult {
   errorMessage?: string
 }
 
+/**
+ * @oas [post] /store/pin-phone/carts/{id}/complete
+ * operationId: completePinPhoneCart
+ * summary: Complete a PIN phone cart
+ * description: Completes a PIN phone cart by creating a payment collection, payment session
+ *   with the BT payment result, and running the cart completion workflow.
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema:
+ *       type: string
+ *     description: The cart ID
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         required:
+ *           - PaymentResult
+ *         properties:
+ *           PaymentResult:
+ *             type: object
+ *             required:
+ *               - offender_no
+ *               - status
+ *             properties:
+ *               offender_no:
+ *                 type: string
+ *                 description: The prisoner's offender number
+ *                 example: "A1234BC"
+ *               status:
+ *                 type: string
+ *                 enum:
+ *                   - AUTHORIZED
+ *                   - ERROR
+ *                   - CANCELLED
+ *                 description: Payment authorisation status
+ *               transactionReference:
+ *                 type: string
+ *                 description: Reference from the payment provider
+ *               holdNumber:
+ *                 type: integer
+ *                 description: The finance hold number
+ *               errorCode:
+ *                 type: string
+ *                 description: Error code if payment failed
+ *               errorMessage:
+ *                 type: string
+ *                 description: Error message if payment failed
+ * responses:
+ *   200:
+ *     description: Cart completed or payment failure details returned
+ *     content:
+ *       application/json:
+ *         schema:
+ *           oneOf:
+ *             - type: object
+ *               properties:
+ *                 order:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *             - type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: string
+ *   400:
+ *     description: No cart items found
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             message:
+ *               type: string
+ */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params
   const { PaymentResult } = req.body as { PaymentResult: PaymentResult }

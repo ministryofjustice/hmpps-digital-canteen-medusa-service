@@ -2,6 +2,64 @@ import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
 import { addToCartWorkflow } from '@medusajs/medusa/core-flows'
 import { Modules, ModuleRegistrationName } from '@medusajs/framework/utils'
 
+/**
+ * @oas [post] /store/pin-phone/carts/{id}/add-items
+ * operationId: addPinPhoneToCart
+ * summary: Add PIN phone credit to cart
+ * description: Adds a PIN phone credit item to the specified cart with the given amount.
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema:
+ *       type: string
+ *     description: The cart ID
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         required:
+ *           - amount
+ *         properties:
+ *           amount:
+ *             type: integer
+ *             format: int64
+ *             description: Amount in pence
+ *             example: 1000
+ * responses:
+ *   200:
+ *     description: Item added to cart successfully
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             cart:
+ *               type: object
+ *               description: The updated cart with items
+ *   404:
+ *     description: PIN Phone variant not found
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             message:
+ *               type: string
+ *   500:
+ *     description: Failed to add pin phone to cart
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             message:
+ *               type: string
+ *             error:
+ *               type: string
+ */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
     const { id: cartId } = req.params
