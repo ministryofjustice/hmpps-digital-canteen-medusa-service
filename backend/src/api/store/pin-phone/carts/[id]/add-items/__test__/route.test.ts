@@ -105,7 +105,10 @@ describe('POST handler - /store/pin-phone/carts/:id/add-items', () => {
 
     expect(res.status).toHaveBeenCalledWith(404)
     expect(res.json).toHaveBeenCalledWith({
-      message: 'PIN Phone variant not found. Please check the SKU and try again.',
+      status: 404,
+      errorCode: 'VARIANT_NOT_FOUND',
+      userMessage: 'PIN Phone variant not found. Please check the SKU and try again.',
+      developerMessage: 'No variant found with SKU PIN-PHONE-CREDIT',
     })
   })
 
@@ -116,8 +119,10 @@ describe('POST handler - /store/pin-phone/carts/:id/add-items', () => {
 
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({
-      message: 'Failed to add pin phone to cart',
-      error: 'DB failure',
+      status: 500,
+      errorCode: 'ADD_TO_CART_FAILED',
+      userMessage: 'Failed to add pin phone to cart',
+      developerMessage: 'DB failure',
     })
   })
 })
