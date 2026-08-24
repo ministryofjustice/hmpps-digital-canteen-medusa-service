@@ -19,3 +19,6 @@ Run from ./backend
 To start
 
     npm run dev
+
+To update OPA spec
+npx medusa-oas oas --type store --out-dir ./src/oas --paths ./src/api --base ./src/oas/store.base.yaml

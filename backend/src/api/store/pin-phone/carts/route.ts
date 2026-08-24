@@ -92,8 +92,8 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       customerId = customer.id
     }
 
-  // Create cart using Pin Phone Credit region
-  const [region] = await regionModuleService.listRegions({ name: 'Pin Phone Credit - United Kingdom' })
+    // Create cart using Pin Phone Credit region
+    const [region] = await regionModuleService.listRegions({ name: 'Pin Phone Credit - United Kingdom' })
 
     if (!region) {
       return res.status(404).json({
