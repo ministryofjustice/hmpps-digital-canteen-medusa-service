@@ -19,69 +19,26 @@ import { Modules, ModuleRegistrationName } from '@medusajs/framework/utils'
  *   content:
  *     application/json:
  *       schema:
- *         type: object
- *         required:
- *           - amount
- *         properties:
- *           amount:
- *             type: integer
- *             format: int64
- *             description: Amount in pence
- *             example: 1000
+ *         $ref: '#/components/schemas/AddItemsRequest'
  * responses:
  *   200:
  *     description: Item added to cart successfully
  *     content:
  *       application/json:
  *         schema:
- *           type: object
- *           properties:
- *             cart:
- *               type: object
- *               description: The updated cart with items
+ *           $ref: '#/components/schemas/CartResponse'
  *   404:
  *     description: PIN Phone variant not found
  *     content:
  *       application/json:
  *         schema:
- *           type: object
- *           required:
- *             - status
- *           properties:
- *             status:
- *               type: integer
- *               example: 404
- *             errorCode:
- *               type: string
- *               example: VARIANT_NOT_FOUND
- *             userMessage:
- *               type: string
- *               example: PIN Phone variant not found. Please check the SKU and try again.
- *             developerMessage:
- *               type: string
- *             moreInfo:
- *               type: string
+ *           $ref: '#/components/schemas/ErrorResponse'
  *   500:
  *     description: Failed to add pin phone to cart
  *     content:
  *       application/json:
  *         schema:
- *           type: object
- *           required:
- *             - status
- *           properties:
- *             status:
- *               type: integer
- *               example: 500
- *             errorCode:
- *               type: string
- *               example: ADD_TO_CART_FAILED
- *             userMessage:
- *               type: string
- *             developerMessage:
- *               type: string
- *             moreInfo:
- *               type: string
+ *           $ref: '#/components/schemas/ErrorResponse'
  */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {

@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  title: Pin Phone Store API
+  version: 1.0.0
+components:
+  schemas:
+    CreateCartRequest:
+      type: object
+      required:
+        - metadata
+      properties:
+        metadata:
+          type: object
+          required:
+            - prison_id
+            - offender_no
+            - first_name
+            - second_name
+          properties:
+            prison_id:
+              type: string
+              description: The prison identifier
+              example: "MDI"
+            offender_no:
+              type: string
+              description: The prisoner's offender number
+              example: "A1234BC"
+            first_name:
+              type: string
+              description: Prisoner's first name
+              example: "John"
+            second_name:
+              type: string
+              description: Prisoner's last name
+              example: "Smith"
+    AddItemsRequest:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: integer
+          format: int64
+          description: Amount in pence
+          example: 1000
+    CartResponse:
+      type: object
+      properties:
+        cart:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The cart ID
+              example: "cart_1234567890"
+    ErrorResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: integer
+          example: 500
+        errorCode:
+          type: string
+        userMessage:
+          type: string
+        developerMessage:
+          type: string
+        moreInfo:
+          type: string

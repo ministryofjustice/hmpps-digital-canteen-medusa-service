@@ -70,7 +70,7 @@ describe('POST handler - /store/pin-phone/carts/:id/add-items', () => {
           {
             variant_id: 'credit-variant-id',
             quantity: 1,
-            unit_price: 500,
+            unit_price: 5,
             requires_shipping: false,
           },
         ],
