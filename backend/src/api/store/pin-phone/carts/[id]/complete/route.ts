@@ -2,13 +2,15 @@ import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { createPaymentCollectionForCartWorkflow, completeCartWorkflow } from '@medusajs/medusa/core-flows'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
-export interface PaymentResult {
+export interface PaymentRequest {
   offender_no: string
+  amountPence: number
   status: 'AUTHORIZED' | 'ERROR' | 'CANCELLED'
   transactionReference?: string
   holdNumber?: number
   errorCode?: string
   errorMessage?: string
+  processedAt?: string
 }
 
 /**
@@ -29,95 +31,102 @@ export interface PaymentResult {
  *   content:
  *     application/json:
  *       schema:
- *         type: object
- *         required:
- *           - PaymentResult
- *         properties:
- *           PaymentResult:
- *             type: object
- *             required:
- *               - offender_no
- *               - status
- *             properties:
- *               offender_no:
- *                 type: string
- *                 description: The prisoner's offender number
- *                 example: "A1234BC"
- *               status:
- *                 type: string
- *                 enum:
- *                   - AUTHORIZED
- *                   - ERROR
- *                   - CANCELLED
- *                 description: Payment authorisation status
- *               transactionReference:
- *                 type: string
- *                 description: Reference from the payment provider
- *               holdNumber:
- *                 type: integer
- *                 description: The finance hold number
- *               errorCode:
- *                 type: string
- *                 description: Error code if payment failed
- *               errorMessage:
- *                 type: string
- *                 description: Error message if payment failed
+ *         $ref: '#/components/schemas/PaymentRequest'
  * responses:
  *   200:
- *     description: Cart completed or payment failure details returned
+ *     description: Cart completed or payment failure recorded
  *     content:
  *       application/json:
  *         schema:
  *           oneOf:
- *             - type: object
- *               properties:
- *                 order:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *             - type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 code:
- *                   type: string
+ *             - $ref: '#/components/schemas/CompleteCartOrderResponse'
  *   400:
- *     description: No cart items found
+ *     description: Invalid request — missing or invalid payload, or empty cart
  *     content:
  *       application/json:
  *         schema:
- *           type: object
- *           properties:
- *             message:
- *               type: string
+ *           $ref: '#/components/schemas/ErrorResponse'
+ *   404:
+ *     description: Cart not found
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/ErrorResponse'
+ *   500:
+ *     description: Internal error during payment collection or session creation
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/ErrorResponse'
  */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params
-  const { PaymentResult } = req.body as { PaymentResult: PaymentResult }
+  const { PaymentRequest } = req.body as { PaymentRequest: PaymentRequest }
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER)
   const cartModuleService = req.scope.resolve(Modules.CART)
   const cart = await cartModuleService.retrieveCart(id, { relations: ['items'] })
 
+  console.log("REQUEST", PaymentRequest)
+
   if (!cart?.items?.length) {
     logger.error(`No cart items found`)
-    return res.status(400).json({ message: 'No cart items found' })
+    return res.status(400).json({
+      status: 500,
+      errorCode: 'CART_COMPLETION_FAILED',
+      userMessage: 'No cart items found',
+      developerMessage: `No items in cart for`,
+    })
   }
+  console.log("ONEEEEE")
 
   const amount = cart.items[0].unit_price
 
-  const paymentCollection = await createPaymentCollectionForCartWorkflow(req.scope).run({
-    input: { cart_id: id },
-  })
 
-  const paymentModuleService = req.scope.resolve(Modules.PAYMENT)
+  let paymentCollectionId: string
+  try {
+    const paymentCollection = await createPaymentCollectionForCartWorkflow(req.scope).run({
+      input: { cart_id: id },
+    })
+    paymentCollectionId = paymentCollection.result.id
+  } catch (err) {
+    logger.error(
+        `Failed to create payment collection for cart ${id}: ${(err as Error).message}`
+    )
+    console.log("TWOOOO")
+    return res.status(500).json({
+      status: 500,
+      errorCode: 'PAYMENT_COLLECTION_FAILED',
+      userMessage: 'Unable to process payment at this time',
+      developerMessage: `Payment collection creation failed for cart ${id}: ${(err as Error).message}`,
+    })
 
-  await paymentModuleService.createPaymentSession(paymentCollection.result.id, {
-    provider_id: 'pp_bt-payment_bt-payment',
-    amount,
-    currency_code: 'gbp',
-    data: { ...PaymentResult },
-  })
+  }
+
+  console.log("THREEEE")
+
+  try {
+    const paymentModuleService = req.scope.resolve(Modules.PAYMENT)
+
+    await paymentModuleService.createPaymentSession(paymentCollectionId, {
+      provider_id: 'pp_bt-payment_bt-payment',
+      amount,
+      currency_code: 'gbp',
+      data: { ...PaymentRequest },
+    })
+  } catch (err) {
+    logger.error(
+        `Failed to create payment session for cart ${id}: ${(err as Error).message}`
+    )
+    console.log("FOUURRRR")
+    return res.status(500).json({
+      status: 500,
+      errorCode: 'PAYMENT_SESSION_FAILED',
+      userMessage: 'Unable to process payment at this time',
+      developerMessage: `Payment session creation failed for cart ${id}: ${(err as Error).message}`,
+    })
+  }
+
+  console.log("FIVEEEEE")
 
   try {
     const { result } = await completeCartWorkflow(req.scope).run({ input: { id } })
@@ -126,8 +135,11 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     logger.error(`Cart completion failed for cart ${id}: ${(err as Error).message}`)
 
     return res.status(200).json({
-      message: PaymentResult.errorMessage ?? 'Payment was not authorised',
-      code: PaymentResult.errorCode ?? PaymentResult.status,
+      status: 500,
+      errorCode: 'PAYMENT_AUTHORISATION_FAILED',
+      userMessage: 'Payment was not authorised',
+      developerMessage: `completeCartWorkflow failed for cart ${id}: ${(err as Error).message}`,
     })
+
   }
 }

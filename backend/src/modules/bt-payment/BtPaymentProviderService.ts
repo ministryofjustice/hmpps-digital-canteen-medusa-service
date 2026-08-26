@@ -16,7 +16,7 @@ import type {
   WebhookActionResult,
 } from '@medusajs/framework/types'
 import { randomUUID } from 'node:crypto'
-import { PaymentResult } from '../../api/store/pin-phone/carts/[id]/complete/route'
+import { PaymentRequest } from '../../api/store/pin-phone/carts/[id]/complete/route'
 
 type InjectedDependencies = {
   logger: Logger
@@ -33,7 +33,7 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
   }
 
   async initiatePayment(input: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
-    const data = input.data as PaymentResult | undefined
+    const data = input.data as PaymentRequest | undefined
 
     if (!data?.offender_no) {
       throw new Error('Missing required offender_no')
@@ -49,7 +49,7 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
   }
 
   async authorizePayment(input: AuthorizePaymentInput): Promise<AuthorizePaymentOutput> {
-    const data = input.data as PaymentResult | undefined
+    const data = input.data as PaymentRequest | undefined
 
     if (data?.status !== 'AUTHORIZED') {
       this.logger.error(`Payment failed for prisoner ${data?.offender_no}: ${data?.errorMessage}`)
@@ -70,7 +70,7 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
   }
 
   async capturePayment(input: CapturePaymentInput): Promise<CapturePaymentOutput> {
-    const data = input.data as PaymentResult | undefined
+    const data = input.data as PaymentRequest | undefined
 
     this.logger.info(`Capturing payment for offender ${data?.offender_no}`)
 

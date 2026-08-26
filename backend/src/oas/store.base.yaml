@@ -53,6 +53,56 @@ components:
               type: string
               description: The cart ID
               example: "cart_1234567890"
+    PaymentRequest:
+      type: object
+      properties:
+        offender_no:
+          type: string
+          description: The prisoner's offender number
+          example: "A1234BC"
+        amountPence:
+          type: integer
+          format: int64
+          description: Amount in pence
+          example: 1000
+        status:
+          type: string
+          enum:
+            - AUTHORIZED
+            - ERROR
+            - CANCELLED
+          description: Payment authorisation status
+          example: "AUTHORIZED"
+        transactionReference:
+          type: string
+          description: Reference from the payment provider
+          example: "TXN-2024-00001"
+        holdNumber:
+          type: integer
+          description: The finance hold number
+          example: 12345
+        errorCode:
+          type: string
+          description: Error code if payment failed
+          example: "INSUFFICIENT_FUNDS"
+        errorMessage:
+          type: string
+          description: Error message if payment failed
+          example: "Insufficient funds on prisoner account"
+        processedAt:
+          type: string
+          format: date-time
+          description: When the payment was processed
+          example: "2026-08-25T14:30:00Z"
+    CompleteCartOrderResponse:
+      type: object
+      properties:
+        successful:
+          type: boolean
+          description: Indicates successful cart completion
+        cartId:
+          type: string
+          description: The cart ID
     ErrorResponse:
       type: object
       required:
