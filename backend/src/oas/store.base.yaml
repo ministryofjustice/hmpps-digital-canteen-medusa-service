@@ -55,16 +55,24 @@ components:
               example: "cart_1234567890"
     PaymentRequest:
       type: object
+      required:
+        - amountPence
+        - offenderNo
+        - prisonId
       properties:
-        offender_no:
-          type: string
-          description: The prisoner's offender number
-          example: "A1234BC"
         amountPence:
           type: integer
           format: int64
           description: Amount in pence
           example: 1000
+        offenderNo:
+          type: string
+          description: The prisoner's offender number
+          example: "A1234BC"
+        prisonId:
+          type: string
+          description: The prisoner's prison number
+          example: "ASI"
         status:
           type: string
           enum:
@@ -75,7 +83,7 @@ components:
           example: "AUTHORIZED"
         transactionReference:
           type: string
-          description: Reference from the payment provider
+          description: Transaction reference
           example: "TXN-2024-00001"
         holdNumber:
           type: integer
@@ -89,17 +97,18 @@ components:
           type: string
           description: Error message if payment failed
           example: "Insufficient funds on prisoner account"
-        processedAt:
-          type: string
-          format: date-time
-          description: When the payment was processed
-          example: "2026-08-25T14:30:00Z"
-    CompleteCartOrderResponse:
+    CompleteCartResponse:
       type: object
       properties:
-        successful:
+        paymentSuccessful:
           type: boolean
-          description: Indicates successful cart completion
+          description: Indicates successful payment
+        orderStatusRecorded:
+          type: boolean
+          description: Indicates whether medusa was able to complete cart and record order
+        orderId:
+          type: string
+          description: The order id within medusa
         cartId:
           type: string
           description: The cart ID

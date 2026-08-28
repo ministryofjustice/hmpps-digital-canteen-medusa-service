@@ -15,10 +15,11 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
   let cartModuleService: any
   let paymentModuleService: any
 
-  const validPaymentResult = {
-    offender_no: 'G916XXX',
-    status: 'authorised',
-    transactionBatchNumber: '12345',
+  const validPaymentRequest = {
+    amountPence: 1000,
+    offenderNo: 'G916XXX',
+    prisonId: 'MDI',
+    status: 'AUTHORIZED',
     transactionReference: '12345',
     holdNumber: '54321',
     errorCode: null,
@@ -63,7 +64,7 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
     req = {
       params: { id: 'cart_123' },
       body: {
-        PaymentResult: validPaymentResult,
+        PaymentRequest: validPaymentRequest,
       },
       scope: {
         resolve: jest.fn(key => {
@@ -109,45 +110,87 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
         provider_id: 'pp_bt-payment_bt-payment',
         amount: 500,
         currency_code: 'gbp',
-        data: { ...validPaymentResult },
+        data: { ...validPaymentRequest },
       }),
     )
 
     expect(res.status).toHaveBeenCalledWith(200)
     expect(res.json).toHaveBeenCalledWith({
-      order: { id: 'order_123' },
+      cartId: 'cart_123',
+      orderId: 'order_123',
+      orderStatusRecorded: true,
+      paymentSuccessful: true,
     })
   })
 
-  it('returns 200 and returns error on payment error', async () => {
+  it('returns 404 and returns error when no cart retrieved', async () => {
+    cartModuleService.retrieveCart.mockRejectedValue(new Error('Missing cart'))
+
+    req.body.PaymentRequest = validPaymentRequest
+
+    await POST(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(404)
+    expect(res.json).toHaveBeenCalledWith({
+      status: 404,
+      errorCode: 'CART_NOT_FOUND',
+      developerMessage: 'Could not retrieve cart cart_123: Missing cart',
+      userMessage: 'Cart not found',
+    })
+  })
+
+  it('returns 500 when payment collection creation fails', async () => {
     cartModuleService.retrieveCart.mockResolvedValue({
       id: 'cart_123',
       items: [{ unit_price: 500 }],
     })
 
-    req.body.PaymentResult = {
-      offender_no: 'G916XXX',
-      status: 'error',
-      errorCode: 'BT ded :c',
-      errorMessage: 'BT unreachable',
-    }
+    const mockedCreatePaymentCollectionForCartWorkflow = createPaymentCollectionForCartWorkflow as unknown as jest.Mock
+    mockedCreatePaymentCollectionForCartWorkflow.mockReturnValue({
+      run: jest.fn().mockRejectedValue(new Error('Payment collection failed')),
+    })
+
+    await POST(req, res)
+
+    expect(logger.error).toHaveBeenCalledWith(
+      'Failed to create payment collection for cart cart_123: Payment collection failed',
+    )
+
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({
+      status: 500,
+      errorCode: 'PAYMENT_COLLECTION_FAILED',
+      userMessage: 'Unable to process payment at this time',
+      developerMessage: 'Payment collection creation failed for cart cart_123: Payment collection failed',
+    })
+  })
+
+  it('returns 500 and returns error on cart completion error', async () => {
+    cartModuleService.retrieveCart.mockResolvedValue({
+      id: 'cart_123',
+      items: [{ unit_price: 500 }],
+    })
+
+    req.body.PaymentRequest = validPaymentRequest
 
     const mockedCompleteCartWorkflow = completeCartWorkflow as unknown as jest.Mock
     mockedCompleteCartWorkflow.mockReturnValue({
-      run: jest.fn().mockRejectedValue(new Error('Payment not authorised')),
+      run: jest.fn().mockRejectedValue(new Error('Some medusa issue')),
     })
 
     await POST(req, res)
 
     expect(logger.error).toHaveBeenCalled()
-    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({
-      code: 'BT ded :c',
-      message: 'BT unreachable',
+      status: 500,
+      errorCode: 'CART_COMPLETION_FAILED',
+      developerMessage: 'completeCartWorkflow failed for cart cart_123: Some medusa issue',
+      userMessage: 'Order could not be completed within medusa',
     })
   })
 
-  it('logs a warning and returns early when no cart items exist', async () => {
+  it('Returns early with error when no cart items exist', async () => {
     cartModuleService.retrieveCart.mockResolvedValue({
       id: 'cart_123',
       items: [],
@@ -155,10 +198,12 @@ describe('POST /store/pin-phone/carts/:id/complete', () => {
 
     await POST(req, res)
 
-    expect(logger.error).toHaveBeenCalledWith('No cart items found')
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({
-      message: 'No cart items found',
+      status: 400,
+      errorCode: 'EMPTY_CART',
+      developerMessage: 'Cart cart_123 contains no line items',
+      userMessage: 'Cart has no items',
     })
   })
 })

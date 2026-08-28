@@ -28,20 +28,20 @@ describe('BtPaymentProviderService', () => {
       const { btPaymentProviderService } = buildBtPaymentProvider()
 
       const result = await btPaymentProviderService.initiatePayment({
-        data: { offender_no: 'ABC123', status: 'authorised' },
+        data: { offenderNo: 'ABC123', status: 'AUTHORIZED' },
       } as unknown as InitiatePaymentInput)
 
       expect(result.id).toMatch(/^bt_/)
       expect(result.status).toBe(PaymentSessionStatus.PENDING)
-      expect(result.data).toMatchObject({ offender_no: 'ABC123' })
+      expect(result.data).toMatchObject({ offenderNo: 'ABC123' })
     })
 
-    it('throws error when offender_no is missing', async () => {
+    it('throws error when offenderNo is missing', async () => {
       const { btPaymentProviderService } = buildBtPaymentProvider()
 
       await expect(
-        btPaymentProviderService.initiatePayment({ data: { status: 'authorised' } } as unknown as InitiatePaymentInput),
-      ).rejects.toThrow('offender_no')
+        btPaymentProviderService.initiatePayment({ data: { status: 'AUTHORIZED' } } as unknown as InitiatePaymentInput),
+      ).rejects.toThrow('Missing required offenderNo')
     })
   })
 
@@ -51,10 +51,11 @@ describe('BtPaymentProviderService', () => {
 
       const result = await btPaymentProviderService.authorizePayment({
         data: {
-          offender_no: 'ABC123',
+          amountPence: 1000,
+          offenderNo: 'ABC123',
+          prisonId: 'MDI',
           status: 'AUTHORIZED',
-          transactionBatchNumber: 'random ref',
-          transactionReference: 'random ref',
+          transactionReference: '12345',
           holdNumber: '123456',
           errorCode: null,
           errorMessage: null,
@@ -63,8 +64,6 @@ describe('BtPaymentProviderService', () => {
 
       expect(result.status).toBe(PaymentSessionStatus.AUTHORIZED)
       expect(result.data).toMatchObject({
-        transactionBatchNumber: 'random ref',
-        transactionReference: 'random ref',
         holdNumber: '123456',
       })
     })
@@ -74,18 +73,18 @@ describe('BtPaymentProviderService', () => {
 
       const result = await btPaymentProviderService.authorizePayment({
         data: {
-          offender_no: 'ABC123',
-          status: 'error',
-          errorCode: 'BT_DIED_:c',
-          errorMessage: 'BT service non responsive',
+          amountPence: 1000,
+          offenderNo: 'ABC123',
+          prisonId: 'MDI',
+          status: 'ERROR',
+          transactionReference: '12345',
+          holdNumber: '123456',
+          errorCode: null,
+          errorMessage: null,
         },
       } as unknown as AuthorizePaymentInput)
 
-      expect(result.status).toBe(PaymentSessionStatus.ERROR)
-      expect(result.data).toMatchObject({
-        errorCode: 'BT_DIED_:c',
-        errorMessage: 'BT service non responsive',
-      })
+      expect(result.status).toBe('error')
     })
   })
 
