@@ -1,9 +1,6 @@
 name: Security Snyk dependency check
 
 on:
-  push:
-    branches:
-      - '**'
   workflow_dispatch: 
   schedule:
     - cron: "42 3 * * MON-FRI" # Every weekday
