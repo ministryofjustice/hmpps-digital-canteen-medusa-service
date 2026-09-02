@@ -16,12 +16,18 @@ import type {
   WebhookActionResult,
 } from '@medusajs/framework/types'
 import { randomUUID } from 'node:crypto'
-import { PaymentResult } from '../../api/store/pin-phone/carts/[id]/complete/route'
+import { PaymentRequest } from '../../api/store/pin-phone/carts/[id]/complete/route'
 
 type InjectedDependencies = {
   logger: Logger
 }
 
+/**
+ * Payment provider for BT PIN phone credit purchases.
+ *
+ * Payment orchestration  happens on the API side.
+ * This provider receives the outcome status and stores in medusa DB so it can be queried
+ */
 class BtPaymentProviderService extends AbstractPaymentProvider {
   static identifier = 'bt-payment'
 
@@ -32,27 +38,38 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
     this.logger = container.logger
   }
 
+  /**
+   * Called when a payment session is created, createPaymentSession.
+   * Sets session status based on payment outcome —
+   * ERROR for failed/unauthorised
+   * PENDING for authorised
+   */
   async initiatePayment(input: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
-    const data = input.data as PaymentResult | undefined
+    const data = input.data as PaymentRequest | undefined
 
-    if (!data?.offender_no) {
-      throw new Error('Missing required offender_no')
+    if (!data?.offenderNo) {
+      throw new Error('Missing required offenderNo')
     }
 
-    this.logger.info(`Initiating payment for prisoner ${data.offender_no}`)
+    const sessionStatus = data.status === 'AUTHORIZED' ? PaymentSessionStatus.PENDING : PaymentSessionStatus.ERROR
+
+    this.logger.info(`Initiating payment for prisoner ${data.offenderNo}, status ${data.status}`)
 
     return {
       id: `bt_${randomUUID()}`,
-      status: PaymentSessionStatus.PENDING,
+      status: sessionStatus,
       data: { ...data },
     }
   }
 
+  /**
+   * Called during completeCartWorkflow for AUTHORIZED payments.
+   */
   async authorizePayment(input: AuthorizePaymentInput): Promise<AuthorizePaymentOutput> {
-    const data = input.data as PaymentResult | undefined
+    const data = input.data as PaymentRequest | undefined
 
     if (data?.status !== 'AUTHORIZED') {
-      this.logger.error(`Payment failed for prisoner ${data?.offender_no}: ${data?.errorMessage}`)
+      this.logger.error(`Payment failed for prisoner ${data?.offenderNo}: ${data?.errorMessage}`)
       return {
         status: PaymentSessionStatus.ERROR,
         data: {
@@ -61,7 +78,7 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
       }
     }
 
-    this.logger.info(`Payment authorised for prisoner ${data.offender_no}, ref: ${data.transactionReference}`)
+    this.logger.info(`Payment authorised for prisoner ${data.offenderNo}, ref: ${data.transactionReference}`)
 
     return {
       status: PaymentSessionStatus.AUTHORIZED,
@@ -70,9 +87,9 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
   }
 
   async capturePayment(input: CapturePaymentInput): Promise<CapturePaymentOutput> {
-    const data = input.data as PaymentResult | undefined
+    const data = input.data as PaymentRequest | undefined
 
-    this.logger.info(`Capturing payment for offender ${data?.offender_no}`)
+    this.logger.info(`Capturing payment for offender ${data?.offenderNo}`)
 
     return {
       data: {

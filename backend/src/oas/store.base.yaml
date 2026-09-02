@@ -53,6 +53,65 @@ components:
               type: string
               description: The cart ID
               example: "cart_1234567890"
+    PaymentRequest:
+      type: object
+      required:
+        - amountPence
+        - offenderNo
+        - prisonId
+      properties:
+        amountPence:
+          type: integer
+          format: int64
+          description: Amount in pence
+          example: 1000
+        offenderNo:
+          type: string
+          description: The prisoner's offender number
+          example: "A1234BC"
+        prisonId:
+          type: string
+          description: The prisoner's prison number
+          example: "ASI"
+        status:
+          type: string
+          enum:
+            - AUTHORIZED
+            - ERROR
+            - CANCELLED
+          description: Payment authorisation status
+          example: "AUTHORIZED"
+        transactionReference:
+          type: string
+          description: Transaction reference
+          example: "TXN-2024-00001"
+        holdNumber:
+          type: integer
+          description: The finance hold number
+          example: 12345
+        errorCode:
+          type: string
+          description: Error code if payment failed
+          example: "INSUFFICIENT_FUNDS"
+        errorMessage:
+          type: string
+          description: Error message if payment failed
+          example: "Insufficient funds on prisoner account"
+    CompleteCartResponse:
+      type: object
+      properties:
+        paymentSuccessful:
+          type: boolean
+          description: Indicates successful payment
+        orderStatusRecorded:
+          type: boolean
+          description: Indicates whether medusa was able to complete cart and record order
+        orderId:
+          type: string
+          description: The order id within medusa
+        cartId:
+          type: string
+          description: The cart ID
     ErrorResponse:
       type: object
       required:
