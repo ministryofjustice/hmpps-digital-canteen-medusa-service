@@ -54,4 +54,4 @@ ENV PORT=9000
 ENV DISABLE_MEDUSA_TELEMETRY=true
 EXPOSE 9000
 
-CMD ["sh", "-c", "cd /app/.medusa/server && node ./node_modules/.bin/medusa db:migrate --execute-all-links && node ./node_modules/.bin/medusa start"]
+CMD ["sh", "-c", "cd /app/.medusa/server && node ./node_modules/.bin/medusa db:migrate --execute-safe-links && node ./node_modules/.bin/medusa start"]
