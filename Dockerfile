@@ -1,7 +1,4 @@
 FROM ghcr.io/ministryofjustice/hmpps-node:24-alpine AS base
-RUN npm install -g npm@latest
-ARG BUILD_NUMBER=1_0_0
-ARG GIT_REF=not-available
 
 ENV TZ=Europe/London
 RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
@@ -36,7 +33,10 @@ RUN ./node_modules/.bin/tsc instrumentation.ts --outDir . --skipLibCheck
 RUN echo "{\"buildNumber\":\"${BUILD_NUMBER}\",\"gitRef\":\"${GIT_REF}\"}" > build-info.json
 
 # ── Production
-FROM base AS production
+FROM ghcr.io/ministryofjustice/hmpps-node:24-alpine-runtime AS production
+WORKDIR /app
+ENV HOME=/home/appuser
+
 COPY --from=build --chown=appuser:appgroup /app/instrumentation.js ./instrumentation.js
 COPY --from=build --chown=appuser:appgroup /app/build-info.json ./build-info.json
 COPY --from=build --chown=appuser:appgroup /app/.medusa ./.medusa
@@ -54,4 +54,4 @@ ENV PORT=9000
 ENV DISABLE_MEDUSA_TELEMETRY=true
 EXPOSE 9000
 
-CMD ["sh", "-c", "cd /app/.medusa/server && npm run db:migrate && npx medusa start"]
+CMD ["sh", "-c", "cd /app/.medusa/server && node ./node_modules/.bin/medusa db:migrate --execute-all-links && node ./node_modules/.bin/medusa start"]
