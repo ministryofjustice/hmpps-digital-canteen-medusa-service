@@ -6,7 +6,7 @@ export default configureAllowedScripts({
     'node_modules/@medusajs/telemetry@2.20.0': 'FORBID',
 
     // Build tools
-    'node_modules/@swc/core@1.15.43': ['postinstall'],
+    'node_modules/@swc/core@1.16.1': ['postinstall'],
 
     // Core-js sponsorship message - not needed
     'node_modules/core-js@3.50.0': 'FORBID',
