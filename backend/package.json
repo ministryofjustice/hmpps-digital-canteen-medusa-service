@@ -19,7 +19,7 @@
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
-    "db:migrate": "npx medusa db:migrate",
+    "db:migrate": "npx medusa db:migrate --execute-safe-links",
     "setup": "npm ci --legacy-peer-deps && hmpps-npm-script-run-allowlist"
   },
   "dependencies": {
@@ -52,5 +52,18 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "npm@11.8.0"
+  "packageManager": "npm@11.8.0",
+  "overrides": {
+    "lodash": "4.17.21",
+    "redoc": "2.4.0",
+    "brace-expansion": "5.0.9",
+    "fast-uri": "3.1.6",
+    "js-yaml": "3.15.1",
+    "uuid": "11.1.1",
+    "qs": "6.16.0",
+    "ajv": "8.18.0",
+    "body-parser": "1.20.6",
+    "undici": "6.28.0",
+    "tar": "7.5.21"
+  }
 }
