@@ -1,17 +1,10 @@
-FROM node:24-bookworm-slim AS base
+FROM ghcr.io/ministryofjustice/hmpps-node:24-alpine AS base
+RUN npm install -g npm@latest
 ARG BUILD_NUMBER=1_0_0
 ARG GIT_REF=not-available
 
 ENV TZ=Europe/London
 RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
-
-RUN addgroup --gid 2000 --system appgroup && \
-    adduser --uid 2000 --system appuser --gid 2000 --home /home/appuser
-
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 ENV HOME=/home/appuser
@@ -32,6 +25,8 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # ── Build
 FROM deps AS build
+ARG BUILD_NUMBER=1_0_0
+ARG GIT_REF=not-available
 COPY backend/ ./
 ENV CI=true
 ENV DISABLE_MEDUSA_ADMIN=false
