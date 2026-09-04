@@ -22,8 +22,8 @@ export const apiConfig = {
       deadline: 10000,
     },
     agent: new AgentConfig(10000),
-    systemClientId: get('SYSTEM_CLIENT_ID', 'clientid', requiredInProduction),
-    systemClientSecret: get('SYSTEM_CLIENT_SECRET', 'clientsecret', requiredInProduction),
+    systemClientId: get('CLIENT_ID', 'clientid', requiredInProduction),
+    systemClientSecret: get('CLIENT_SECRET', 'clientsecret', requiredInProduction),
   },
 
   apis: {
@@ -34,8 +34,8 @@ export const apiConfig = {
         deadline: 10000,
       },
       agent: new AgentConfig(10000),
-      systemClientId: get('SYSTEM_CLIENT_ID', 'clientid', requiredInProduction),
-      systemClientSecret: get('SYSTEM_CLIENT_SECRET', 'clientsecret', requiredInProduction),
+      systemClientId: get('CLIENT_ID', 'clientid', requiredInProduction),
+      systemClientSecret: get('CLIENT_SECRET', 'clientsecret', requiredInProduction),
     },
   },
 }
