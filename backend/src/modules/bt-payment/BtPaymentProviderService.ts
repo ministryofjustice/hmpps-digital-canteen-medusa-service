@@ -16,7 +16,7 @@ import type {
   WebhookActionResult,
 } from '@medusajs/framework/types'
 import { randomUUID } from 'node:crypto'
-import { PaymentRequest } from '../../api/store/pin-phone/carts/[id]/complete/route'
+import { PaymentRequest } from '../../api/internal/pin-phone/carts/[id]/complete/route'
 
 type InjectedDependencies = {
   logger: Logger
