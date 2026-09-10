@@ -51,7 +51,8 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
       throw new Error('Missing required offenderNo')
     }
 
-    const sessionStatus = data.paymentStatus === 'AUTHORIZED' ? PaymentSessionStatus.PENDING : PaymentSessionStatus.ERROR
+    const sessionStatus =
+      data.paymentStatus === 'AUTHORIZED' ? PaymentSessionStatus.PENDING : PaymentSessionStatus.ERROR
 
     this.logger.info(`Initiating payment for prisoner ${data.offenderNo}, status ${data.paymentStatus}`)
 
