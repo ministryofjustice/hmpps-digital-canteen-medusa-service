@@ -73,26 +73,44 @@ components:
           type: string
           description: The prisoner's prison number
           example: "ASI"
-        status:
+        paymentStatus:
           type: string
           enum:
             - AUTHORIZED
             - ERROR
-            - CANCELLED
           description: Payment authorisation status
           example: "AUTHORIZED"
-        transactionReference:
+        financeTransactionReference:
           type: string
-          description: Transaction reference
+          description: Transaction reference from release hold create transaction
           example: "TXN-2024-00001"
-        holdNumber:
+        financeHoldNumber:
           type: integer
+          format: int64
           description: The finance hold number
           example: 12345
+        btCreditLimitPence:
+          type: integer
+          format: int64
+          description: BT credit limit in pence
+          example: 1000
+        btPreBalancePence:
+          type: integer
+          format: int64
+          description: BT balance pre balance change in pence
+          example: 1000
+        btNewBalancePence:
+          type: integer
+          format: int64
+          description: BT updated balance
+          example: 1000
         errorCode:
           type: string
-          description: Error code if payment failed
-          example: "INSUFFICIENT_FUNDS"
+          description: Error code when payment failed
+          enum:
+            - HOLD_FAILED
+            - BT_PAYMENT_FAILED
+            - RELEASE_HOLD_CREATE_TRANSACTION_FAILED
         errorMessage:
           type: string
           description: Error message if payment failed

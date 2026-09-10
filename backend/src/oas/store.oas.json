@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Pin Phone Store API",
-    "version": "1.0.0"
+    "version": "2.20.0"
   },
   "servers": [
     {
@@ -16919,7 +16919,7 @@
       "post": {
         "operationId": "completePinPhoneCart",
         "summary": "Complete a PIN phone cart",
-        "description": "Completes a PIN phone cart by creating a payment collection, payment session with the BT payment result, and running the cart completion workflow.",
+        "description": "Completes a PIN phone cart by processing the BT payment result and running the transaction",
         "parameters": [
           {
             "in": "path",
@@ -16936,28 +16936,32 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PaymentRequest"
+                "type": "object",
+                "required": [
+                  "PaymentRequest"
+                ],
+                "properties": {
+                  "PaymentRequest": {
+                    "$ref": "#/components/schemas/PaymentRequest"
+                  }
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Cart completed",
+            "description": "Payment outcome recorded",
             "content": {
               "application/json": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/CompleteCartResponse"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/CompleteCartResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request — missing or invalid payload, or empty cart",
+            "description": "Invalid request",
             "content": {
               "application/json": {
                 "schema": {
@@ -16977,7 +16981,7 @@
             }
           },
           "500": {
-            "description": "Internal error during payment collection or session creation",
+            "description": "Internal error",
             "content": {
               "application/json": {
                 "schema": {
@@ -20684,6 +20688,12 @@
             "items": {
               "$ref": "#/components/schemas/AdminBatchCreateInventoryItemLocationLevels"
             }
+          },
+          "unit_of_measure": {
+            "type": "string",
+            "title": "unit_of_measure",
+            "description": "The inventory item's unit of measure.",
+            "example": "kg"
           }
         }
       },
@@ -26166,6 +26176,12 @@
             "type": "number",
             "title": "reserved_quantity",
             "description": "The inventory item's reserved quantity."
+          },
+          "unit_of_measure": {
+            "type": "string",
+            "title": "unit_of_measure",
+            "description": "The inventory's unit of measure.",
+            "example": "kg"
           }
         }
       },
@@ -35967,6 +35983,12 @@
               "url": "https://docs.medusajs.com/api/admin#manage-metadata",
               "description": "Learn how to manage metadata"
             }
+          },
+          "unit_of_measure": {
+            "type": "string",
+            "title": "unit_of_measure",
+            "description": "The inventory item's unit of measure.",
+            "example": "kg"
           }
         },
         "x-schemaName": "AdminUpdateInventoryItem"
@@ -37858,6 +37880,26 @@
           }
         }
       },
+      "AdminUserAuthProvidersResponse": {
+        "type": "object",
+        "description": "The list of auth providers that a user can authenticate with. These represent the auth providers that the user has previously used to log in or register with the system.",
+        "x-schemaName": "AdminUserAuthProvidersResponse",
+        "required": [
+          "providers"
+        ],
+        "properties": {
+          "providers": {
+            "type": "array",
+            "description": "The IDs of the auth providers the user can authenticate with, such as\n`emailpass`.",
+            "items": {
+              "type": "string",
+              "title": "providers",
+              "description": "The provider's identifier.",
+              "example": "emailpass"
+            }
+          }
+        }
+      },
       "AdminUserDeleteResponse": {
         "type": "object",
         "description": "The details of the deleted user.",
@@ -37924,6 +37966,21 @@
             "title": "estimate_count",
             "description": "The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.",
             "x-featureFlag": "index_engine"
+          }
+        }
+      },
+      "AdminUserResetPasswordTokenResponse": {
+        "type": "object",
+        "description": "The response for the reset password token generation for a user. This response contains the generated reset password token that can be used to reset the user's password.",
+        "x-schemaName": "AdminUserResetPasswordTokenResponse",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "token",
+            "description": "The generated reset password token. Append it to the admin's\n`/reset-password` page as a `token` query parameter to build a link the\nuser can open to set a new password.\n\nThe token is short-lived, can only be used once, and generating it\ninvalidates any reset password token previously issued for the user."
           }
         }
       },
@@ -45168,6 +45225,7 @@
           "name",
           "amount",
           "is_tax_inclusive",
+          "is_custom_amount",
           "created_at",
           "updated_at",
           "original_total",
@@ -45295,6 +45353,11 @@
             "type": "number",
             "title": "discount_tax_total",
             "description": "The total taxes of the discount amount."
+          },
+          "is_custom_amount": {
+            "type": "boolean",
+            "title": "is_custom_amount",
+            "description": "Whether the shipping method price is custom amount or not."
           }
         }
       },
@@ -51822,30 +51885,52 @@
             "description": "The prisoner's prison number",
             "example": "ASI"
           },
-          "status": {
+          "paymentStatus": {
             "type": "string",
             "enum": [
               "AUTHORIZED",
-              "ERROR",
-              "CANCELLED"
+              "ERROR"
             ],
             "description": "Payment authorisation status",
             "example": "AUTHORIZED"
           },
-          "transactionReference": {
+          "financeTransactionReference": {
             "type": "string",
-            "description": "Transaction reference",
+            "description": "Transaction reference from release hold create transaction",
             "example": "TXN-2024-00001"
           },
-          "holdNumber": {
+          "financeHoldNumber": {
             "type": "integer",
+            "format": "int64",
             "description": "The finance hold number",
             "example": 12345
           },
+          "btCreditLimitPence": {
+            "type": "integer",
+            "format": "int64",
+            "description": "BT credit limit in pence",
+            "example": 1000
+          },
+          "btPreBalancePence": {
+            "type": "integer",
+            "format": "int64",
+            "description": "BT balance pre balance change in pence",
+            "example": 1000
+          },
+          "btNewBalancePence": {
+            "type": "integer",
+            "format": "int64",
+            "description": "BT updated balance",
+            "example": 1000
+          },
           "errorCode": {
             "type": "string",
-            "description": "Error code if payment failed",
-            "example": "INSUFFICIENT_FUNDS"
+            "description": "Error code when payment failed",
+            "enum": [
+              "HOLD_FAILED",
+              "BT_PAYMENT_FAILED",
+              "RELEASE_HOLD_CREATE_TRANSACTION_FAILED"
+            ]
           },
           "errorMessage": {
             "type": "string",
