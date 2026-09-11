@@ -51929,7 +51929,8 @@
             "enum": [
               "HOLD_FAILED",
               "BT_PAYMENT_FAILED",
-              "RELEASE_HOLD_CREATE_TRANSACTION_FAILED"
+              "RELEASE_HOLD_CREATE_TRANSACTION_FAILED",
+              "RELEASE_HOLD_FAILED"
             ]
           },
           "errorMessage": {
