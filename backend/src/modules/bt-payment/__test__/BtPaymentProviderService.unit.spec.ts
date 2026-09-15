@@ -28,7 +28,7 @@ describe('BtPaymentProviderService', () => {
       const { btPaymentProviderService } = buildBtPaymentProvider()
 
       const result = await btPaymentProviderService.initiatePayment({
-        data: { offenderNo: 'ABC123', status: 'AUTHORIZED' },
+        data: { offenderNo: 'ABC123', paymentStatus: 'AUTHORIZED' },
       } as unknown as InitiatePaymentInput)
 
       expect(result.id).toMatch(/^bt_/)
@@ -54,9 +54,12 @@ describe('BtPaymentProviderService', () => {
           amountPence: 1000,
           offenderNo: 'ABC123',
           prisonId: 'MDI',
-          status: 'AUTHORIZED',
-          transactionReference: '12345',
-          holdNumber: '123456',
+          paymentStatus: 'AUTHORIZED',
+          financeTransactionReference: '12345',
+          financeHoldNumber: '123456',
+          btCreditLimitPence: '50000',
+          btPreBalancePence: 1000,
+          btNewBalancePence: 2000,
           errorCode: null,
           errorMessage: null,
         },
@@ -64,7 +67,7 @@ describe('BtPaymentProviderService', () => {
 
       expect(result.status).toBe(PaymentSessionStatus.AUTHORIZED)
       expect(result.data).toMatchObject({
-        holdNumber: '123456',
+        financeHoldNumber: '123456',
       })
     })
 

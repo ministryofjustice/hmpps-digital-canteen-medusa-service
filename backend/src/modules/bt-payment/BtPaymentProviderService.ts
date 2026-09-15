@@ -51,9 +51,10 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
       throw new Error('Missing required offenderNo')
     }
 
-    const sessionStatus = data.status === 'AUTHORIZED' ? PaymentSessionStatus.PENDING : PaymentSessionStatus.ERROR
+    const sessionStatus =
+      data.paymentStatus === 'AUTHORIZED' ? PaymentSessionStatus.PENDING : PaymentSessionStatus.ERROR
 
-    this.logger.info(`Initiating payment for prisoner ${data.offenderNo}, status ${data.status}`)
+    this.logger.info(`Initiating payment for prisoner ${data.offenderNo}, status ${data.paymentStatus}`)
 
     return {
       id: `bt_${randomUUID()}`,
@@ -68,7 +69,7 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
   async authorizePayment(input: AuthorizePaymentInput): Promise<AuthorizePaymentOutput> {
     const data = input.data as PaymentRequest | undefined
 
-    if (data?.status !== 'AUTHORIZED') {
+    if (data?.paymentStatus !== 'AUTHORIZED') {
       this.logger.error(`Payment failed for prisoner ${data?.offenderNo}: ${data?.errorMessage}`)
       return {
         status: PaymentSessionStatus.ERROR,
@@ -78,7 +79,7 @@ class BtPaymentProviderService extends AbstractPaymentProvider {
       }
     }
 
-    this.logger.info(`Payment authorised for prisoner ${data.offenderNo}, ref: ${data.transactionReference}`)
+    this.logger.info(`Payment authorised for prisoner ${data.offenderNo}, ref: ${data.financeTransactionReference}`)
 
     return {
       status: PaymentSessionStatus.AUTHORIZED,
