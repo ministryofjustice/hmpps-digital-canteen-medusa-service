@@ -89,6 +89,10 @@ components:
           format: int64
           description: The finance hold number
           example: 12345
+        btCreditReference:
+          type: string
+          description: BT add credit reference,
+          example: "TXN-2024-00001"
         btCreditLimitPence:
           type: integer
           format: int64
