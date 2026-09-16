@@ -108,6 +108,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       input: {
         region_id: region.id,
         customer_id: customerId,
+        metadata: { order_type: 'PIN_PHONE' },
       },
     })
 

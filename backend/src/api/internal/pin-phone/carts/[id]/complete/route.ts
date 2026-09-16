@@ -6,9 +6,12 @@ export interface PaymentRequest {
   amountPence: number
   offenderNo: string
   prisonId: string
-  status: 'AUTHORIZED' | 'ERROR' | 'CANCELLED'
-  transactionReference?: string
-  holdNumber?: number
+  paymentStatus: 'AUTHORIZED' | 'ERROR'
+  financeTransactionReference?: string
+  financeHoldNumber?: number
+  btCreditLimitPence: number
+  btPreBalancePence: number
+  btNewBalancePence: number
   errorCode?: string
   errorMessage?: string
 }
@@ -29,8 +32,7 @@ function buildErrorResponse(status: number, opts: Omit<ErrorResponse, 'status'> 
  * @oas [post] /store/pin-phone/carts/{id}/complete
  * operationId: completePinPhoneCart
  * summary: Complete a PIN phone cart
- * description: Completes a PIN phone cart by creating a payment collection, payment session
- * with the BT payment result, and running the cart completion workflow.
+ * description: "Completes a PIN phone cart by processing the BT payment result and running the transaction"
  * parameters:
  *   - in: path
  *     name: id
@@ -149,9 +151,9 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   }
 
   // Do no complete cart for unauthorised payments
-  if (paymentRequest.status !== 'AUTHORIZED') {
+  if (paymentRequest.paymentStatus !== 'AUTHORIZED') {
     logger.warn(
-      `Payment not authorised for cart ${id}: status=${paymentRequest.status}, ` +
+      `Payment not authorised for cart ${id}: status=${paymentRequest.paymentStatus}, ` +
         `errorCode=${paymentRequest.errorCode}, errorMessage=${paymentRequest.errorMessage}`,
     )
     return res.status(200).json({
