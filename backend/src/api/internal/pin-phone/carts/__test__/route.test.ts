@@ -18,6 +18,7 @@ describe('POST /store/carts/create-cart', () => {
   let linkService: any
   let queryService: any
   let regionService: any
+  let salesChannelService: any
 
   beforeEach(() => {
     // Mock services
@@ -40,6 +41,10 @@ describe('POST /store/carts/create-cart', () => {
 
     regionService = {
       listRegions: jest.fn().mockResolvedValue([{ id: 'region_uk' }]),
+    }
+
+    salesChannelService = {
+      listSalesChannels: jest.fn().mockResolvedValue([{ id: 'Pin Phone Credit Sales Channel' }]),
     }
 
     // Mock workflow instance
@@ -65,6 +70,8 @@ describe('POST /store/carts/create-cart', () => {
             return queryService
           case ModuleRegistrationName.REGION:
             return regionService
+          case ModuleRegistrationName.SALES_CHANNEL:
+            return salesChannelService
           default:
             throw new Error(`Unknown dependency: ${key}`)
         }
