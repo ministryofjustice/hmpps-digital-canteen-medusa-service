@@ -2,7 +2,7 @@ import * as jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-const { HMPPS_AUTH_URL } = process.env
+const  HMPPS_AUTH_URL = process.env.HMPPS_AUTH_URL
 
 if (!HMPPS_AUTH_URL) {
   throw new Error('HMPPS_AUTH_URL environment variable is not set')
