@@ -2,23 +2,22 @@ import * as jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-const  HMPPS_AUTH_URL = process.env.HMPPS_AUTH_URL
-
-if (!HMPPS_AUTH_URL) {
-  throw new Error('HMPPS_AUTH_URL environment variable is not set')
-}
-
-const client = jwksClient({
-  jwksUri: `${HMPPS_AUTH_URL}/.well-known/jwks.json`,
-  cache: true,
-  cacheMaxAge: 604800000, // a week
-  rateLimit: true,
-  jwksRequestsPerMinute: 5,
-})
-
 const REQUIRED_ROLE = 'ROLE_PIN_PHONE_CREDIT_API'
 
 export async function validateHmppsToken(req, res, next) {
+  const { HMPPS_AUTH_URL } = process.env
+  if (!HMPPS_AUTH_URL) {
+    throw new Error('HMPPS_AUTH_URL environment variable is not set')
+  }
+
+  const client = jwksClient({
+    jwksUri: `${HMPPS_AUTH_URL}/.well-known/jwks.json`,
+    cache: true,
+    cacheMaxAge: 604800000, // a week
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+  })
+
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER)
   const authHeader = req.headers.authorization
 
