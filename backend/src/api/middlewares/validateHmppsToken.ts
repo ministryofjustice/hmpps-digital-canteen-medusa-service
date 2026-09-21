@@ -31,7 +31,12 @@ export async function validateHmppsToken(req, res, next) {
 
   const decoded = jwt.decode(token, { complete: true })
   if (!decoded?.header?.kid) {
-    return res.status(401).json({ message: 'Malformed token' })
+    return res.status(401).json({
+      status: 401,
+      errorCode: 'MALFORMED_TOKEN',
+      userMessage: 'Malformed token.',
+      developerMessage: `Auth failed: Malformed token`,
+    })
   }
 
   try {
@@ -47,7 +52,12 @@ export async function validateHmppsToken(req, res, next) {
 
     const authorities = verified.authorities ?? []
     if (!authorities.includes(REQUIRED_ROLE)) {
-      return res.status(403).json({ message: 'Insufficient roles' })
+      return res.status(403).json({
+        status: 403,
+        errorCode: 'INSUFFICIENT_ROLES',
+        userMessage: 'Insufficient roles.',
+        developerMessage: `Auth failed: Insufficient roles`,
+      })
     }
 
     return next()
@@ -55,6 +65,11 @@ export async function validateHmppsToken(req, res, next) {
     const message = err instanceof jwt.TokenExpiredError ? 'Token expired' : 'Invalid token'
 
     logger.error('Auth failure:', message, err)
-    return res.status(401).json({ message })
+    return res.status(401).json({
+      status: 401,
+      errorCode: 'AUTH_FAILURE',
+      userMessage: message,
+      developerMessage: `Auth failed: ${message}`,
+    })
   }
 }

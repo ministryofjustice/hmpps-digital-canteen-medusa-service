@@ -92,7 +92,12 @@ describe('validateHmppsToken', () => {
     await validateHmppsToken(buildReq('Bearer token'), res, jest.fn())
 
     expect(res.status).toHaveBeenCalledWith(403)
-    expect(res.json).toHaveBeenCalledWith({ message: 'Insufficient roles' })
+    expect(res.json).toHaveBeenCalledWith({
+      status: 403,
+      errorCode: 'INSUFFICIENT_ROLES',
+      userMessage: 'Insufficient roles.',
+      developerMessage: `Auth failed: Insufficient roles`
+    })
   })
 
   it('returns 401 with "Token expired" for expired tokens', async () => {
@@ -106,6 +111,11 @@ describe('validateHmppsToken', () => {
     await validateHmppsToken(buildReq('Bearer token'), res, jest.fn())
 
     expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({ message: 'Token expired' })
+    expect(res.json).toHaveBeenCalledWith({
+      status: 401,
+      errorCode: 'AUTH_FAILURE',
+      userMessage: 'Token expired',
+      developerMessage: `Auth failed: Token expired`,
+    })
   })
 })

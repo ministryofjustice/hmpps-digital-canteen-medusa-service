@@ -4,7 +4,7 @@ import { Modules, ContainerRegistrationKeys, ModuleRegistrationName } from '@med
 import { PRISONER_MODULE } from '../../../../modules/prisoner-details'
 
 /**
- * @oas [post] /store/pin-phone/carts
+ * @oas [post] /internal/pin-phone/carts
  * operationId: createPinPhoneCart
  * summary: Create a PIN phone cart
  * description: Creates a new cart for a prisoner's PIN phone purchase. If the prisoner

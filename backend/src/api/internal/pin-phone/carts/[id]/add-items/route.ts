@@ -3,7 +3,7 @@ import { addToCartWorkflow } from '@medusajs/medusa/core-flows'
 import { Modules, ModuleRegistrationName } from '@medusajs/framework/utils'
 
 /**
- * @oas [post] /store/pin-phone/carts/{id}/add-items
+ * @oas [post] /internal/pin-phone/carts/{id}/add-items
  * operationId: addPinPhoneToCart
  * summary: Add PIN phone credit to cart
  * description: Adds a PIN phone credit item to the specified cart with the given amount.

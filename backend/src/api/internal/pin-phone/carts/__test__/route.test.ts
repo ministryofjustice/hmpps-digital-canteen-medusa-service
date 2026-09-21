@@ -9,7 +9,7 @@ jest.mock('@medusajs/medusa/core-flows', () => ({
   createCartWorkflow: jest.fn(),
 }))
 
-describe('POST /store/carts/create-cart', () => {
+describe('POST /internal/carts/create-cart', () => {
   let req: any
   let res: any
   let container: any
