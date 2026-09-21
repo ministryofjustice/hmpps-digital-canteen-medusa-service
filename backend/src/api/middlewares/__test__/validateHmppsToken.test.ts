@@ -96,7 +96,7 @@ describe('validateHmppsToken', () => {
       status: 403,
       errorCode: 'INSUFFICIENT_ROLES',
       userMessage: 'Insufficient roles.',
-      developerMessage: `Auth failed: Insufficient roles`
+      developerMessage: `Auth failed: Insufficient roles`,
     })
   })
 
