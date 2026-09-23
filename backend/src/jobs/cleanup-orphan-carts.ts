@@ -1,5 +1,5 @@
-import { MedusaContainer } from '@medusajs/framework/types'
-import { ScheduledJobContext } from '@medusajs/framework'
+import {MedusaContainer} from '@medusajs/framework/types'
+import {ScheduledJobContext} from '@medusajs/framework'
 import {
     ContainerRegistrationKeys,
     Modules,
@@ -18,11 +18,11 @@ export default async function cleanupOrphanCarts(
     logger.info(`Running cleanupOrphanCarts job`)
 
     // Calculated 24 hours ago
-    const twentyFourHoursAgo = new Date(Date.now() -  15 * 60 * 1000)
+    const twentyFourHoursAgo = new Date(Date.now() - 15 * 60 * 1000)
 
     try {
         // fetch carts with created at older than 24 hours and completed_at and deleted_at are null
-        const { data: carts } = await query.graph({
+        const {data: carts} = await query.graph({
             entity: Modules.CART,
             fields: ['id',
                 'completed_at',

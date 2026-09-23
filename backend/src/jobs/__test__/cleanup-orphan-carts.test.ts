@@ -1,6 +1,6 @@
-import { MedusaContainer } from '@medusajs/framework/types'
-import { ScheduledJobContext } from '@medusajs/framework'
-import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
+import {MedusaContainer} from '@medusajs/framework/types'
+import {ScheduledJobContext} from '@medusajs/framework'
+import {ContainerRegistrationKeys, Modules} from '@medusajs/framework/utils'
 import cleanupOrphanCarts from '../cleanup-orphan-carts'
 
 describe('cleanupOrphanCarts job', () => {
@@ -32,8 +32,8 @@ describe('cleanupOrphanCarts job', () => {
     })
 
     it('should delete orphan carts that match the criteria', async () => {
-        const carts = [{ id: 'cart_1' }, { id: 'cart_2' }]
-        queryMock.graph.mockResolvedValueOnce({ data: carts })
+        const carts = [{id: 'cart_1'}, {id: 'cart_2'}]
+        queryMock.graph.mockResolvedValueOnce({data: carts})
 
         await cleanupOrphanCarts(container, {} as ScheduledJobContext)
 
@@ -41,10 +41,10 @@ describe('cleanupOrphanCarts job', () => {
             expect.objectContaining({
                 entity: Modules.CART,
                 fields: ['id',
-                         'completed_at',
-                         'deleted_at',
-                         'created_at',
-                         'order.id'],
+                    'completed_at',
+                    'deleted_at',
+                    'created_at',
+                    'order.id'],
                 filters: expect.objectContaining({
                     completed_at: null,
                     deleted_at: null,
@@ -60,7 +60,7 @@ describe('cleanupOrphanCarts job', () => {
     })
 
     it('should not delete anything if no orphan carts are found', async () => {
-        queryMock.graph.mockResolvedValueOnce({ data: [] })
+        queryMock.graph.mockResolvedValueOnce({data: []})
 
         await cleanupOrphanCarts(container, {} as ScheduledJobContext)
 
