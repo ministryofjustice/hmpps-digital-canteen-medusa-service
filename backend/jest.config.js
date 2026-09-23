@@ -2,6 +2,8 @@ const { loadEnv } = require('@medusajs/utils')
 
 loadEnv('test', process.cwd())
 
+process.env.HMPPS_AUTH_URL = 'https://auth.test.com'
+
 module.exports = {
   transform: {
     '^.+\\.[jt]s$': [

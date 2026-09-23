@@ -1,15 +1,12 @@
 import { MedusaContainer } from '@medusajs/framework'
 import { ContainerRegistrationKeys, ModuleRegistrationName, Modules } from '@medusajs/framework/utils'
 import {
-  createApiKeysWorkflow,
   createRegionsWorkflow,
   createSalesChannelsWorkflow,
   createShippingOptionsWorkflow,
   createShippingProfilesWorkflow,
   createStockLocationsWorkflow,
-  linkSalesChannelsToApiKeyWorkflow,
   linkSalesChannelsToStockLocationWorkflow,
-  updateStoresWorkflow,
 } from '@medusajs/medusa/core-flows'
 
 /**
@@ -22,14 +19,12 @@ export default async function pin_credit_seed({ container }: { container: Medusa
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const link = container.resolve(ContainerRegistrationKeys.LINK)
   const fulfillmentModuleService = container.resolve(ModuleRegistrationName.FULFILLMENT)
-  const storeModuleService = container.resolve(Modules.STORE)
 
   const countries = ['gb']
 
   logger.info('Seeding pin phone credit data')
 
   // Creates single  region covering the whole of the UK.
-  /* TODO pp_system_default is built in default provider, to be replaced with pin phone credit payment provider */
   const {
     result: [region],
   } = await createRegionsWorkflow(container).run({
@@ -56,38 +51,6 @@ export default async function pin_credit_seed({ container }: { container: Medusa
           description: 'Sales channel for pin phone credit products',
         },
       ],
-    },
-  })
-
-  // Creates a publishable API key and links it to the sales channel.
-  const {
-    result: [publishablePinCreditApiKey],
-  } = await createApiKeysWorkflow(container).run({
-    input: {
-      api_keys: [
-        {
-          title: 'Pin Phone Credit Publishable API Key',
-          type: 'publishable',
-          created_by: '',
-        },
-      ],
-    },
-  })
-
-  await linkSalesChannelsToApiKeyWorkflow(container).run({
-    input: {
-      id: publishablePinCreditApiKey.id,
-      add: [digitalSalesChannel.id],
-    },
-  })
-
-  // Sets the store's default sales channel.
-  // This may change later on, but for now pin credit is only sales channel
-  const [store] = await storeModuleService.listStores()
-  await updateStoresWorkflow(container).run({
-    input: {
-      selector: { id: store.id },
-      update: { default_sales_channel_id: digitalSalesChannel.id },
     },
   })
 

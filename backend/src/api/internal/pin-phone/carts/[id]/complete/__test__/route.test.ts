@@ -8,7 +8,7 @@ jest.mock('@medusajs/medusa/core-flows', () => ({
   completeCartWorkflow: jest.fn(),
 }))
 
-describe('POST /store/pin-phone/carts/:id/complete', () => {
+describe('POST /internal/pin-phone/carts/:id/complete', () => {
   let req: any
   let res: any
   let logger: any
