@@ -29,7 +29,7 @@ function buildErrorResponse(status: number, opts: Omit<ErrorResponse, 'status'> 
 }
 
 /**
- * @oas [post] /store/pin-phone/carts/{id}/complete
+ * @oas [post] /internal/pin-phone/carts/{id}/complete
  * operationId: completePinPhoneCart
  * summary: Complete a PIN phone cart
  * description: "Completes a PIN phone cart by processing the BT payment result and running the transaction"

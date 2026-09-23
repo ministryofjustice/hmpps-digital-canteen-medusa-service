@@ -22360,7 +22360,7 @@
         ]
       }
     },
-    "/store/pin-phone/carts": {
+    "/internal/pin-phone/carts": {
       "post": {
         "operationId": "createPinPhoneCart",
         "summary": "Create a PIN phone cart",
@@ -22409,7 +22409,7 @@
         }
       }
     },
-    "/store/pin-phone/carts/{id}/add-items": {
+    "/internal/pin-phone/carts/{id}/add-items": {
       "post": {
         "operationId": "addPinPhoneToCart",
         "summary": "Add PIN phone credit to cart",
@@ -22469,7 +22469,7 @@
         }
       }
     },
-    "/store/pin-phone/carts/{id}/complete": {
+    "/internal/pin-phone/carts/{id}/complete": {
       "post": {
         "operationId": "completePinPhoneCart",
         "summary": "Complete a PIN phone cart",

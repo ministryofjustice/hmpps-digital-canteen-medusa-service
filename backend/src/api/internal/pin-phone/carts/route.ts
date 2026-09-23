@@ -4,7 +4,7 @@ import { Modules, ContainerRegistrationKeys, ModuleRegistrationName } from '@med
 import { PRISONER_MODULE } from '../../../../modules/prisoner-details'
 
 /**
- * @oas [post] /store/pin-phone/carts
+ * @oas [post] /internal/pin-phone/carts
  * operationId: createPinPhoneCart
  * summary: Create a PIN phone cart
  * description: Creates a new cart for a prisoner's PIN phone purchase. If the prisoner
@@ -53,6 +53,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     const link = req.scope.resolve(ContainerRegistrationKeys.LINK)
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
     const regionModuleService = req.scope.resolve(ModuleRegistrationName.REGION)
+    const salesChannelModuleService = req.scope.resolve(ModuleRegistrationName.SALES_CHANNEL)
 
     const [existingPrisoner] = await prisonerService.listPrisoners({
       prison_id,
@@ -95,6 +96,11 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     // Create cart using Pin Phone Credit region
     const [region] = await regionModuleService.listRegions({ name: 'Pin Phone Credit - United Kingdom' })
 
+    // Create cart using Pin Phone Sales Channel
+    const [salesChannel] = await salesChannelModuleService.listSalesChannels({
+      name: 'Pin Phone Credit Sales Channel',
+    })
+
     if (!region) {
       return res.status(404).json({
         status: 404,
@@ -107,6 +113,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     const { result } = await createCartWorkflow(req.scope).run({
       input: {
         region_id: region.id,
+        sales_channel_id: salesChannel.id,
         customer_id: customerId,
         metadata: { order_type: 'PIN_PHONE' },
       },
@@ -118,7 +125,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       status: 500,
       errorCode: 'CREATE_CART_FAILED',
       userMessage: 'Failed to create cart.',
-      developerMessage: error instanceof Error ? error.message : String(error),
+      developerMessage: `createCartWorkflow failed: ${(error as Error).message}`,
     })
   }
 }

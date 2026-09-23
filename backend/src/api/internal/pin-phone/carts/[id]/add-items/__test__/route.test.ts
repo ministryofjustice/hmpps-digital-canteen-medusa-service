@@ -9,7 +9,7 @@ jest.mock('@medusajs/medusa/core-flows', () => ({
   }),
 }))
 
-describe('POST handler - /store/pin-phone/carts/:id/add-items', () => {
+describe('POST handler - /internal/pin-phone/carts/:id/add-items', () => {
   let req: any
   let res: any
   let productModuleService: any
