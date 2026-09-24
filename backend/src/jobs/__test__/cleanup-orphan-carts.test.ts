@@ -39,7 +39,7 @@ describe('cleanupOrphanCarts job', () => {
     expect(queryMock.graph).toHaveBeenCalledWith(
       expect.objectContaining({
         entity: Modules.CART,
-        fields: ['id', 'completed_at', 'deleted_at', 'created_at', 'order.id'],
+        fields: ['id', 'completed_at', 'deleted_at', 'created_at', 'order.id', 'payment_collection.id'],
         filters: expect.objectContaining({
           completed_at: null,
           deleted_at: null,
@@ -52,6 +52,20 @@ describe('cleanupOrphanCarts job', () => {
 
     expect(cartModuleServiceMock.deleteCarts).toHaveBeenCalledWith(['cart_1', 'cart_2'])
     expect(loggerMock.info).toHaveBeenCalledWith('Deleting 2 orphan carts: cart_1, cart_2')
+  })
+
+  it('should not delete carts that are associated with an order or payment collection', async () => {
+    const carts = [
+      { id: 'cart_1', order: { id: 'order_1' } },
+      { id: 'cart_2', payment_collection: { id: 'payment_1' } },
+      { id: 'cart_3' },
+    ]
+    queryMock.graph.mockResolvedValueOnce({ data: carts })
+
+    await cleanupOrphanCarts(container)
+
+    expect(cartModuleServiceMock.deleteCarts).toHaveBeenCalledWith(['cart_3'])
+    expect(loggerMock.info).toHaveBeenCalledWith('Deleting 1 orphan carts: cart_3')
   })
 
   it('should not delete anything if no orphan carts are found', async () => {
