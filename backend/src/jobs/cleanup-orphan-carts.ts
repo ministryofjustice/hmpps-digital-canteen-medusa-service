@@ -40,5 +40,5 @@ export default async function cleanupOrphanCarts(container: MedusaContainer) {
 
 export const config = {
   name: 'cleanup-orphan-carts',
-  schedule: '45 11 * * *',
+  schedule: '59 11 * * *',
 }
