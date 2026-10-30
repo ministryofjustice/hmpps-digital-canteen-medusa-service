@@ -98,7 +98,7 @@ export default async function seedPrisonCanteenSetup({ container }: ExecArgs) {
       })
 
       logger.info(`Linked API key to sales channel ${prison.code}`)
-    } catch (error) {
+    } catch {
       logger.debug(`Link already exists for ${prison.code}`)
     }
   }
