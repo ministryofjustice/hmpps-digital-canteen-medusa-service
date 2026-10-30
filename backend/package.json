@@ -20,7 +20,7 @@
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
     "db:migrate": "npx medusa db:migrate --execute-safe-links",
-    "setup": "npm ci && hmpps-npm-script-run-allowlist"
+    "setup": "npm ci --legacy-peer-deps && hmpps-npm-script-run-allowlist"
   },
   "dependencies": {
     "@medusajs/admin-sdk": "^2.20.0",
