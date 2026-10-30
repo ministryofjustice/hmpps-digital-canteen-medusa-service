@@ -31,6 +31,7 @@
     "@medusajs/draft-order": "2.20.0",
     "@medusajs/framework": "2.20.0",
     "@medusajs/medusa": "2.20.0",
+    "@medusajs/utils": "2.20.0",
     "@medusajs/workflow-engine-redis": "2.20.0",
     "@ministryofjustice/hmpps-auth-clients": "^1.0.2",
     "@ministryofjustice/hmpps-npm-script-allowlist": "0.0.6",
@@ -41,7 +42,6 @@
   "devDependencies": {
     "@medusajs/medusa-oas-cli": "2.20.0",
     "@medusajs/test-utils": "2.20.0",
-    "@medusajs/utils": "2.20.0",
     "@swc/core": "^1.10.1",
     "@swc/jest": "^0.2.37",
     "@types/jest": "^29.5.14",
