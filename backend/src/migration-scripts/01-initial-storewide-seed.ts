@@ -11,36 +11,36 @@ import { createStoresWorkflow, createTaxRegionsWorkflow } from '@medusajs/medusa
  *
  */
 export default async function initial_data_seed({ container }: { container: MedusaContainer }) {
-    const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
+  const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
 
-    const countries = ['gb']
+  const countries = ['gb']
 
-    logger.info('Seeding store wide data')
+  logger.info('Seeding store wide data')
 
-    // Creates the store, which is the top-level entity in Medusa.
-    await createStoresWorkflow(container).run({
-        input: {
-            stores: [
-                {
-                    name: 'Digital Canteen Store',
-                    supported_currencies: [
-                        {
-                            currency_code: 'gbp',
-                            is_default: true,
-                        },
-                    ],
-                },
-            ],
+  // Creates the store, which is the top-level entity in Medusa.
+  await createStoresWorkflow(container).run({
+    input: {
+      stores: [
+        {
+          name: 'Digital Canteen Store',
+          supported_currencies: [
+            {
+              currency_code: 'gbp',
+              is_default: true,
+            },
+          ],
         },
-    })
+      ],
+    },
+  })
 
-    // Creates tax regions for each country.
-    await createTaxRegionsWorkflow(container).run({
-        input: countries.map(country_code => ({
-            country_code,
-            provider_id: 'tp_system',
-        })),
-    })
+  // Creates tax regions for each country.
+  await createTaxRegionsWorkflow(container).run({
+    input: countries.map(country_code => ({
+      country_code,
+      provider_id: 'tp_system',
+    })),
+  })
 
-    logger.info('Store wide seed complete')
+  logger.info('Store wide seed complete')
 }
