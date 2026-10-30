@@ -20,18 +20,16 @@
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
     "db:migrate": "npx medusa db:migrate --execute-safe-links",
-    "setup": "npm ci --legacy-peer-deps && hmpps-npm-script-run-allowlist"
+    "setup": "npm ci && hmpps-npm-script-run-allowlist"
   },
   "dependencies": {
     "@medusajs/admin-sdk": "^2.20.0",
     "@medusajs/cache-redis": "2.20.0",
     "@medusajs/caching": "2.20.0",
     "@medusajs/cli": "2.20.0",
-    "@medusajs/core-flows": "2.22.1",
     "@medusajs/draft-order": "2.20.0",
     "@medusajs/framework": "2.20.0",
     "@medusajs/medusa": "2.20.0",
-    "@medusajs/utils": "2.20.0",
     "@medusajs/workflow-engine-redis": "2.20.0",
     "@ministryofjustice/hmpps-auth-clients": "^1.0.2",
     "@ministryofjustice/hmpps-npm-script-allowlist": "0.0.6",
@@ -42,6 +40,7 @@
   "devDependencies": {
     "@medusajs/medusa-oas-cli": "2.20.0",
     "@medusajs/test-utils": "2.20.0",
+    "@medusajs/utils": "2.20.0",
     "@swc/core": "^1.10.1",
     "@swc/jest": "^0.2.37",
     "@types/jest": "^29.5.14",
@@ -62,7 +61,6 @@
     "fast-uri": "4.2.1",
     "js-yaml": "3.15.2",
     "uuid": "11.1.1",
-    "qs": "6.16.1",
     "ajv": "8.18.0",
     "body-parser": "1.20.9",
     "undici": "6.29.1",
@@ -78,6 +76,7 @@
     "postcss-selector-parser": "7.1.6",
     "source-map-js": "1.2.2",
     "@graphql-tools/utils": "12.0.2",
+    "qs": "6.16.1",
     "zod": "4.6.6",
     "@opentelemetry/instrumentation-pg": "0.73.0",
     "follow-redirects": "1.16.1"

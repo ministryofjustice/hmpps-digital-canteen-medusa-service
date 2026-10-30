@@ -6,37 +6,36 @@ import { createRegionsWorkflow } from '@medusajs/medusa/core-flows'
 import { prisons } from '../config/prisons'
 
 export default async function seedPrisonCanteenSetup({ container }: ExecArgs) {
-  const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
+    const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
 
-  const salesChannelService = container.resolve(Modules.SALES_CHANNEL)
+    const salesChannelService = container.resolve(Modules.SALES_CHANNEL)
+    const existingRegions = await container.resolve(Modules.REGION).listRegions()
+    const existingChannels = await container.resolve(Modules.SALES_CHANNEL).listSalesChannels()
+    const existingApiKeys = await container.resolve(Modules.API_KEY).listApiKeys()
 
-  const existingRegions = await container.resolve(Modules.REGION).listRegions()
-
-  const existingChannels = await container.resolve(Modules.SALES_CHANNEL).listSalesChannels()
-
-  for (const prison of prisons) {
-    /**
-     * Create Region
-     */
+    for (const prison of prisons) {
+        /**
+         * Create Region
+         */
 
     const region = existingRegions.find(existingRegion => existingRegion.metadata?.prison_code === prison.code)
 
     if (!region) {
-      await createRegionsWorkflow(container).run({
-        input: {
-          regions: [
-            {
-              name: prison.name,
-              currency_code: 'gbp',
-              metadata: {
-                prison_code: prison.code,
-              },
+        await createRegionsWorkflow(container).run({
+            input: {
+                regions: [
+                    {
+                        name: prison.name,
+                        currency_code: 'gbp',
+                        metadata: {
+                            prison_code: prison.code,
+                        },
+                    },
+                ],
             },
-          ],
-        },
-      })
+        })
 
-      logger.info(`Created region for ${prison.code}`)
+        logger.info(`Created region for ${prison.code}`)
     }
 
     /**
@@ -45,47 +44,70 @@ export default async function seedPrisonCanteenSetup({ container }: ExecArgs) {
     let salesChannel = existingChannels.find(sc => sc.name === prison.code)
 
     if (!salesChannel) {
-      const [createdChannel] = await salesChannelService.createSalesChannels([
-        {
-          name: prison.code,
-          description: prison.name,
-        },
-      ])
+        const [createdChannel] = await salesChannelService.createSalesChannels([
+            {
+                name: prison.code,
+                description: prison.name,
+            },
+        ])
 
-      salesChannel = createdChannel
+        salesChannel = createdChannel
 
-      logger.info(`Created sales channel ${prison.code}`)
+        logger.info(`Created sales channel ${prison.code}`)
     }
 
     /**
      * Create Publishable API Key
      */
-    const {
-      result: [apiKey],
-    } = await createApiKeysWorkflow(container).run({
-      input: {
-        api_keys: [
-          {
-            title: `${prison.code} Publishable API Key`,
-            type: 'publishable',
-            created_by: '',
-          },
-        ],
-      },
-    })
 
-    /**
-     * Link API Key to Sales Channel
-     */
-    await linkSalesChannelsToApiKeyWorkflow(container).run({
-      input: {
-        id: apiKey.id,
-        add: [salesChannel.id],
-      },
-    })
+    const apiKeyTitle =
+        `${prison.code} Publishable API Key`
 
-    logger.info(`Created publishable key and linked to ${prison.code}`)
-  }
+    let apiKey = existingApiKeys.find(
+        (key) => key.title === apiKeyTitle
+    )
 
-  logger.info('Canteen inital setup completed')
+    if (!apiKey) {
+        const response =
+            await createApiKeysWorkflow(container).run({
+                input: {
+                    api_keys: [
+                        {
+                            title: apiKeyTitle,
+                            type: "publishable",
+                            created_by: "seed",
+                        },
+                    ],
+                },
+            })
+
+        apiKey = response.result[0]
+
+        logger.info(
+            `Created publishable key for ${prison.code}`
+        )
+    }
+
+        /**
+         *  link API key to sales channel
+         */
+    try {
+        await linkSalesChannelsToApiKeyWorkflow(
+            container
+        ).run({
+            input: {
+                id: apiKey.id,
+                add: [salesChannel.id],
+            },
+        })
+
+        logger.info(
+            `Linked API key to sales channel ${prison.code}`
+        )
+    } catch (error) {
+        logger.debug(
+            `Link already exists for ${prison.code}`
+        )
+    }
+    }
 }
