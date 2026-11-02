@@ -18,7 +18,7 @@ import { PRISONER_MODULE } from '../../../../modules/prisoner-details'
  *             $ref: '#/components/schemas/CreateMedusaUserRequest'
  *     responses:
  *       200:
- *         description: Failed to create Medusa user
+ *         description: Successfully created Medusa user
  *       500:
  *         description: Failed to create cart
  *         content:

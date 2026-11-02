@@ -1,27 +1,31 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { Modules, ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import {addToCartWorkflow, createCartWorkflow} from "@medusajs/medusa/core-flows";
-import {PRISONER_MODULE} from "../../../../../modules/prisoner-details";
 
 /**
  * @openapi
- * /internal/canteen/create-user:
+ * /internal/canteen/carts/add-line-item:
  *   post:
- *     operationId: createMedusaUser
- *     summary: Create a Medusa User
+ *     operationId: addLineItem
+ *     summary: Add item to existing cart, or create new cart and add item
  *     description: >
- *       Creates a Medusa user for a prisoner. Linking prisoner to customer
+ *       Where a medusa cart already exists, add the product variant to the cart.
+ *       If no cart exists, create a new cart and add the product variant.
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/CreateMedusaUserRequest'
+ *             $ref: '#/components/schemas/AddLineItemsRequest'
  *     responses:
  *       200:
- *         description: Failed to create Medusa user
+ *         description: Items successfully added to cart
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AddLineItemsResponse'
  *       500:
- *         description: Failed to create cart
+ *         description: Failed to add line items to cart
  *         content:
  *           application/json:
  *             schema:
@@ -38,30 +42,18 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
             }
         }
 
-        console.log('Adding to cartttttt')
-
         const { prisonId, offenderNo, cartId, productVariantId } = metadata
-        const cartModuleService = req.scope.resolve(Modules.CART)
-        const prisonerService = req.scope.resolve(PRISONER_MODULE)
-        const link = req.scope.resolve(ContainerRegistrationKeys.LINK)
+        const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-        // Find the prisoner
-        console.log('Finding prisoner')
-        const [prisoner] = await prisonerService.listPrisoners({
-            prisoner_id: offenderNo,
-        })
-
-        if (!prisoner) {
-            console.log('Prisoner not found')
+        if (!offenderNo) {
             return res.status(404).json({
                 status: 404,
                 userMessage: 'Prisoner not found'
             })
         }
 
-        // Follow the link to get the customer ID
+        // Get the customerId linked to offenderNo
         console.log('Following link to get customer ID')
-        const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
         const { data: prisoners } = await query.graph({
             entity: "prisoner",
@@ -74,66 +66,73 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
         const customerId = prisoners[0]?.customer?.id
         console.log('Customer ID:', customerId)
 
-
-
-        // Where cart already exists, pass cartId and variantId to add to cart
+        // Where cart already exists (from user session), pass cartId and variantId to add to cart
         if (cartId) {
-            console.log('Adding to existing cart')
-            try {
-                await addToCartWorkflow(req.scope).run({
-                    input: {
-                        cart_id: cartId,
-                        items: [
-                            {
-                                variant_id: productVariantId,
-                                quantity: 1,
-                                requires_shipping: false,
-                            },
-                        ],
-                    },
-                })
-            } catch (e) {
-                // unsure, to update
-            }
-        } else {
-
-            console.log('Creating new cart, then adding to cart')
-            // Where no cartId — create a new cart then add variantId to cart
-            await createCartWorkflow(req.scope).run({
+            await addToCartWorkflow(req.scope).run({
                 input: {
-                    region_id: "reg_01M612TSH8XJS651767EEW18J1",
-                    sales_channel_id: "sc_01M612TSHWX9EP42ZZRD5EDBW4",
-                    customer_id: customerId,
-                    metadata: { order_type: 'PIN_PHONE' },
+                    cart_id: cartId,
+                    items: [
+                        {
+                            variant_id: productVariantId,
+                            quantity: 1,
+                            requires_shipping: false,
+                        },
+                    ],
                 },
             })
-
-            try {
-                await addToCartWorkflow(req.scope).run({
-                    input: {
-                        cart_id: cartId,
-                        items: [
-                            {
-                                variant_id: productVariantId,
-                                quantity: 1,
-                                requires_shipping: false,
-                            },
-                        ],
-                    },
-                })
-            } catch (e) {
-                // unsure, to update
-            }
-
+            return res.json({ cartId: cartId })
         }
 
+        // Where no cat already exists, create new cart against prisonId using prisons region and sales channel
 
+        // find region associated with prisonId
+        const regionService = req.scope.resolve(Modules.REGION)
+        const [region] = await regionService.listRegions({
+            metadata: { prison_code: prisonId },
+        })
+        const regionId = region?.id
 
+        // find sales channel associated with prisonId
+        const { data: salesChannels } = await query.graph({
+            entity: "sales_channel",
+            fields: ["id", "name"],
+            filters: {
+                name: prisonId,
+            },
+        })
+        const salesChannelId = salesChannels[0]?.id
 
-        // No open cart exists
-        return res.json({ cart: null })
+        const { result: cart } = await createCartWorkflow(req.scope).run({
+            input: {
+                region_id: regionId,
+                sales_channel_id: salesChannelId,
+                customer_id: customerId,
+                metadata: { order_type: 'CANTEEN' },
+            },
+        })
+
+        await addToCartWorkflow(req.scope).run({
+            input: {
+                cart_id: cart.id,
+                items: [
+                    {
+                        variant_id: productVariantId,
+                        quantity: 1,
+                        requires_shipping: false,
+                    },
+                ],
+            },
+        })
+        return res.json({ cartId: cart.id })
+
 
     } catch (error) {
-        return res.status(500).json({ error: "Failed to retrieve cart" })
+        console.error(error)
+        return res.status(500).json({
+            status: 500,
+            errorCode: 'ADD_TO_CART_FAILED',
+            userMessage: 'Failed to add item to cart',
+            developerMessage: `${(error as Error).message}`,
+        })
     }
 }
