@@ -3,39 +3,6 @@ import { createCartWorkflow } from '@medusajs/medusa/core-flows'
 import { Modules, ContainerRegistrationKeys, ModuleRegistrationName } from '@medusajs/framework/utils'
 import { PRISONER_MODULE } from '../../../../modules/prisoner-details'
 
-/**
- * @oas [post] /internal/pin-phone/carts
- * operationId: createPinPhoneCart
- * summary: Create a PIN phone cart
- * description: Creates a new cart for a prisoner's PIN phone purchase. If the prisoner
- *   has used the service before, the cart is linked to their existing customer record.
- *   Otherwise, a new customer and prisoner record are created and linked.
- * requestBody:
- *   required: true
- *   content:
- *     application/json:
- *       schema:
- *         $ref: '#/components/schemas/CreateCartRequest'
- * responses:
- *   200:
- *     description: Cart created successfully
- *     content:
- *       application/json:
- *         schema:
- *           $ref: '#/components/schemas/CartResponse'
- *   404:
- *     description: Region not found
- *     content:
- *       application/json:
- *         schema:
- *           $ref: '#/components/schemas/ErrorResponse'
- *   500:
- *     description: Failed to create cart
- *     content:
- *       application/json:
- *         schema:
- *           $ref: '#/components/schemas/ErrorResponse'
- */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
     const { metadata } = req.body as {
