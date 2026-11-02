@@ -92,20 +92,6 @@ module.exports = defineConfig({
         isQueryable: true,
       },
     },
-    {
-      resolve: '@medusajs/medusa/payment',
-      options: {
-        providers: [
-          {
-            id: 'bt-payment',
-            resolve: './src/modules/bt-payment',
-            options: {
-              clientName: 'Digital Canteen Medusa',
-            },
-          },
-        ],
-      },
-    },
   ],
   admin: {
     disable: process.env.DISABLE_MEDUSA_ADMIN === 'true',

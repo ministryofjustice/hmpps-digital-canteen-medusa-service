@@ -8,7 +8,6 @@ import { createStoresWorkflow, createTaxRegionsWorkflow } from '@medusajs/medusa
  * Only contains entities that are store-wide / shared across every
  * sales channel
  *
- * Future Sales Channels and their configuration will go into separate migration files.
  *
  */
 export default async function initial_data_seed({ container }: { container: MedusaContainer }) {
