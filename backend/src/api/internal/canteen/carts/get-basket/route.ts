@@ -1,19 +1,15 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-export interface GetBasketResponse {
-  cartId: string
-  items: [BasketLineItem]
-  itemCount: number
-}
-
-export interface BasketLineItem {
-  lineItemId: string
-  variantId: string
-  title: string
-  quantity: number
-  unitPrice: number
-  lineTotal: number
+interface CartQueryResult {
+  id: string
+  items?: {
+    id: string
+    variant_id: string
+    title: string
+    quantity: number
+    unit_price: number
+  }[]
 }
 
 /**
@@ -56,7 +52,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     const { offenderNo, cartId } = metadata
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-    let activeCart: any = null
+    let activeCart: CartQueryResult | undefined
 
     // Where cartId was passed from user session
     if (cartId) {
@@ -69,7 +65,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
           id: cartId,
         },
       })
-      activeCart = cart
+      activeCart = cart as CartQueryResult
     }
 
     // Where cartId was not passed from user session, verify if cart exists within medusa
@@ -95,7 +91,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
           },
         },
       })
-      activeCart = carts.find(c => c.items?.length > 0)
+      activeCart = carts.find(c => c.items?.length > 0) as CartQueryResult | undefined
     }
 
     // Where no cart exists

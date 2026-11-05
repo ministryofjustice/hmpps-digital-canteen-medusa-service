@@ -70,8 +70,16 @@ const spec = swaggerJsdoc({
         BasketLineItem: {
           type: 'object',
           properties: {
-            lineItemId: {type: 'string', description: 'The medusa line item ID', example: 'cali_01M6GHP27VFW7096R5AQ0G5EHT',},
-            variantId: {type: 'string', description: 'The medusa product variant ID', example: 'variant_01M6E4F0KWV67V7JV3TN7DMAM7',},
+            lineItemId: {
+              type: 'string',
+              description: 'The medusa line item ID',
+              example: 'cali_01M6GHP27VFW7096R5AQ0G5EHT',
+            },
+            variantId: {
+              type: 'string',
+              description: 'The medusa product variant ID',
+              example: 'variant_01M6E4F0KWV67V7JV3TN7DMAM7',
+            },
             title: { type: 'string', description: 'Product title', example: 'Mars Bar' },
             quantity: { type: 'integer', description: 'Quantity in cart', example: 3 },
             unitPrice: { type: 'integer', description: 'Price per item', example: 85 },

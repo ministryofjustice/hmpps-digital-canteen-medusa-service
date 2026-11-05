@@ -60,7 +60,7 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
         { lineItemId: '123', variantId: 'variant1', title: 'cheese :)', quantity: 2, unitPrice: 10, lineTotal: 20 },
       ],
       itemCount: 2,
-      allItemsTotal: 20
+      allItemsTotal: 20,
     })
   })
 
@@ -93,7 +93,7 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
       cartId: 'cart123',
       items: [{ lineItemId: '123', variantId: 'variant1', title: 'cheese', quantity: 1, unitPrice: 9, lineTotal: 9 }],
       itemCount: 1,
-      allItemsTotal: 9
+      allItemsTotal: 9,
     })
   })
 
