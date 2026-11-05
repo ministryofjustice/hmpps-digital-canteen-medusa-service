@@ -32,9 +32,55 @@ const spec = swaggerJsdoc({
             offenderNo: { type: 'string', description: "The prisoner's offender number", example: 'A1234BC' },
           },
         },
+        GetBasketRequest: {
+          type: 'object',
+          required: ['metadata'],
+          properties: {
+            metadata: {
+              $ref: '#/components/schemas/GetBasketRequestMetadata',
+            },
+          },
+        },
+        GetBasketRequestMetadata: {
+          type: 'object',
+          required: ['offenderNo'],
+          properties: {
+            offenderNo: { type: 'string', description: "The prisoner's offender number", example: 'A1234BC' },
+            cartId: {
+              type: 'string',
+              description: 'ID of medusa cart, if already created',
+              example: 'cart_01M6EJSR29XNFFAFPVMJZPQZ2W',
+            },
+          },
+        },
+        GetBasketResponse: {
+          type: 'object',
+          properties: {
+            cartId: { type: 'string', description: 'ID of medusa cart', example: 'cart_01M6GHP256ZVB7N9MVKTNBG73A' },
+            items: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/BasketLineItem',
+              },
+            },
+            itemCount: { type: 'integer', description: 'Total quantity of all items', example: 5 },
+            allItemsTotal: { type: 'integer', description: 'Total value of all itemsin basket', example: 50 },
+          },
+        },
+        BasketLineItem: {
+          type: 'object',
+          properties: {
+            lineItemId: {type: 'string', description: 'The medusa line item ID', example: 'cali_01M6GHP27VFW7096R5AQ0G5EHT',},
+            variantId: {type: 'string', description: 'The medusa product variant ID', example: 'variant_01M6E4F0KWV67V7JV3TN7DMAM7',},
+            title: { type: 'string', description: 'Product title', example: 'Mars Bar' },
+            quantity: { type: 'integer', description: 'Quantity in cart', example: 3 },
+            unitPrice: { type: 'integer', description: 'Price per item', example: 85 },
+            lineTotal: { type: 'integer', description: 'Overall item price', example: 255 },
+          },
+        },
         AddLineItemsRequest: {
           type: 'object',
-          required: ["metadata"],
+          required: ['metadata'],
           properties: {
             metadata: {
               $ref: '#/components/schemas/AddLineItemsRequestMetadata',
@@ -43,24 +89,28 @@ const spec = swaggerJsdoc({
         },
         AddLineItemsRequestMetadata: {
           type: 'object',
-          required: ['prisonId', 'offenderNo', "productVariantId"],
+          required: ['prisonId', 'offenderNo', 'productVariantId'],
           properties: {
             prisonId: { type: 'string', description: 'The prison identifier', example: 'MDI' },
             offenderNo: { type: 'string', description: "The prisoner's offender number", example: 'A1234BC' },
-            cartId: { type: 'string', description: 'ID of medusa cart', example: '123456' },
-            productVariantId: { type: 'string', description: "The variant Id of the product to add to cart", example: 'var_1234' },
+            cartId: { type: 'string', description: 'ID of medusa cart', example: 'cart_01M6EJSR29XNFFAFPVMJZPQZ2W' },
+            productVariantId: {
+              type: 'string',
+              description: 'The variant Id of the product to add to cart',
+              example: 'var_1234',
+            },
           },
         },
         AddLineItemsResponse: {
           type: 'object',
-          required: ["cartId"],
+          required: ['cartId'],
           properties: {
-            cartId: { type: 'string', description: 'ID of medusa cart', example: '123456' },
-          }
+            cartId: { type: 'string', description: 'ID of medusa cart', example: 'cart_01M6EJSR29XNFFAFPVMJZPQZ2W' },
+          },
         },
         RemoveLineItemsRequest: {
           type: 'object',
-          required: ["metadata"],
+          required: ['metadata'],
           properties: {
             metadata: {
               $ref: '#/components/schemas/RemoveLineItemsRequestMetadata',
@@ -69,19 +119,43 @@ const spec = swaggerJsdoc({
         },
         RemoveLineItemsRequestMetadata: {
           type: 'object',
-          required: ['cartId', "lineItemId", "quantity"],
+          required: ['cartId', 'lineItemId', 'quantity'],
           properties: {
-            cartId: { type: 'string', description: 'ID of medusa cart', example: '123456' },
-            lineItemId: { type: 'string', description: "The ID of the line item to remove from the cart", example: 'var_1234' },
-            quantity: { type: 'string', description: "The new quantity of the line item, when quantity hits 0, delete item from basket", example: 'var_1234' },
+            cartId: { type: 'string', description: 'ID of medusa cart', example: 'cart_01M6EJSR29XNFFAFPVMJZPQZ2W' },
+            lineItemId: {
+              type: 'string',
+              description: 'The ID of the line item to remove from the cart',
+              example: 'var_1234',
+            },
+            quantity: {
+              type: 'string',
+              description: 'The new quantity of the line item, when quantity hits 0, delete item from basket',
+              example: 'var_1234',
+            },
           },
         },
         RemoveLineItemsResponse: {
           type: 'object',
-          required: ["cartId"],
+          required: ['cartId'],
           properties: {
-            cartId: { type: 'string', description: 'ID of medusa cart', example: '123456' },
-          }
+            cartId: { type: 'string', description: 'ID of medusa cart', example: 'cart_01M6EJSR29XNFFAFPVMJZPQZ2W' },
+          },
+        },
+        RemoveBasketRequest: {
+          type: 'object',
+          required: ['metadata'],
+          properties: {
+            metadata: {
+              $ref: '#/components/schemas/RemoveBasketMetadata',
+            },
+          },
+        },
+        RemoveBasketMetadata: {
+          type: 'object',
+          required: ['cartId'],
+          properties: {
+            cartId: { type: 'string', description: 'ID of medusa cart', example: 'cart_01M6EJSR29XNFFAFPVMJZPQZ2W' },
+          },
         },
         ErrorResponse: {
           type: 'object',

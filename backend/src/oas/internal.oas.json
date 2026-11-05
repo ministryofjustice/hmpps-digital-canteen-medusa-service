@@ -41,6 +41,96 @@
           }
         }
       },
+      "GetBasketRequest": {
+        "type": "object",
+        "required": [
+          "metadata"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/GetBasketRequestMetadata"
+          }
+        }
+      },
+      "GetBasketRequestMetadata": {
+        "type": "object",
+        "required": [
+          "offenderNo"
+        ],
+        "properties": {
+          "offenderNo": {
+            "type": "string",
+            "description": "The prisoner's offender number",
+            "example": "A1234BC"
+          },
+          "cartId": {
+            "type": "string",
+            "description": "ID of medusa cart, if already created",
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
+          }
+        }
+      },
+      "GetBasketResponse": {
+        "type": "object",
+        "properties": {
+          "cartId": {
+            "type": "string",
+            "description": "ID of medusa cart",
+            "example": "cart_01M6GHP256ZVB7N9MVKTNBG73A"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BasketLineItem"
+            }
+          },
+          "itemCount": {
+            "type": "integer",
+            "description": "Total quantity of all items",
+            "example": 5
+          },
+          "allItemsTotal": {
+            "type": "integer",
+            "description": "Total value of all itemsin basket",
+            "example": 50
+          }
+        }
+      },
+      "BasketLineItem": {
+        "type": "object",
+        "properties": {
+          "lineItemId": {
+            "type": "string",
+            "description": "The medusa line item ID",
+            "example": "cali_01M6GHP27VFW7096R5AQ0G5EHT"
+          },
+          "variantId": {
+            "type": "string",
+            "description": "The medusa product variant ID",
+            "example": "variant_01M6E4F0KWV67V7JV3TN7DMAM7"
+          },
+          "title": {
+            "type": "string",
+            "description": "Product title",
+            "example": "Mars Bar"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity in cart",
+            "example": 3
+          },
+          "unitPrice": {
+            "type": "integer",
+            "description": "Price per item",
+            "example": 85
+          },
+          "lineTotal": {
+            "type": "integer",
+            "description": "Overall item price",
+            "example": 255
+          }
+        }
+      },
       "AddLineItemsRequest": {
         "type": "object",
         "required": [
@@ -73,7 +163,7 @@
           "cartId": {
             "type": "string",
             "description": "ID of medusa cart",
-            "example": "123456"
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
           },
           "productVariantId": {
             "type": "string",
@@ -91,7 +181,7 @@
           "cartId": {
             "type": "string",
             "description": "ID of medusa cart",
-            "example": "123456"
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
           }
         }
       },
@@ -117,7 +207,7 @@
           "cartId": {
             "type": "string",
             "description": "ID of medusa cart",
-            "example": "123456"
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
           },
           "lineItemId": {
             "type": "string",
@@ -140,7 +230,31 @@
           "cartId": {
             "type": "string",
             "description": "ID of medusa cart",
-            "example": "123456"
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
+          }
+        }
+      },
+      "RemoveBasketRequest": {
+        "type": "object",
+        "required": [
+          "metadata"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/RemoveBasketMetadata"
+          }
+        }
+      },
+      "RemoveBasketMetadata": {
+        "type": "object",
+        "required": [
+          "cartId"
+        ],
+        "properties": {
+          "cartId": {
+            "type": "string",
+            "description": "ID of medusa cart",
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
           }
         }
       },
@@ -188,7 +302,7 @@
         },
         "responses": {
           "200": {
-            "description": "Failed to create Medusa user"
+            "description": "Successfully created Medusa user"
           },
           "500": {
             "description": "Failed to create cart",
@@ -225,6 +339,77 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RemoveLineItemsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to create cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/canteen/carts/remove-basket": {
+      "post": {
+        "operationId": "removeBasket",
+        "summary": "Remove Medusa Basket",
+        "description": "Remove Medusa Basket\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveBasketRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Items successfully removed from cart"
+          },
+          "500": {
+            "description": "Failed to remove cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/canteen/carts/get-basket": {
+      "post": {
+        "operationId": "getMedusaBasket",
+        "summary": "Get the medusa basket and details, if it exists",
+        "description": "Get the medusa basket and details, if it exists\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetBasketRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Medusa basket successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetBasketRequest"
                 }
               }
             }

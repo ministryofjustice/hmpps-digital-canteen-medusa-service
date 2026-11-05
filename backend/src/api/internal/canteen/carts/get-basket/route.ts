@@ -1,23 +1,42 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { Modules, ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+
+export interface GetBasketResponse {
+  cartId: string
+  items: [BasketLineItem]
+  itemCount: number
+}
+
+export interface BasketLineItem {
+  lineItemId: string
+  variantId: string
+  title: string
+  quantity: number
+  unitPrice: number
+  lineTotal: number
+}
 
 /**
  * @openapi
- * /internal/canteen/create-user:
+ * /internal/canteen/carts/get-basket:
  *   post:
- *     operationId: createMedusaUser
- *     summary: Create a Medusa User
+ *     operationId: getMedusaBasket
+ *     summary: Get the medusa basket and details, if it exists
  *     description: >
- *       Creates a Medusa user for a prisoner. Linking prisoner to customer
+ *       Get the medusa basket and details, if it exists
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/CreateMedusaUserRequest'
+ *             $ref: '#/components/schemas/GetBasketRequest'
  *     responses:
  *       200:
- *         description: Failed to create Medusa user
+ *         description: Medusa basket successfully retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GetBasketRequest'
  *       500:
  *         description: Failed to create cart
  *         content:
@@ -26,44 +45,88 @@ import { Modules, ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-    try {
-        const { metadata } = req.body as {
-            metadata: {
-                offenderNo: string
-                cartId: string
-            }
-        }
-
-        const { offenderNo, cartId } = metadata
-        const cartService = req.scope.resolve(Modules.CART)
-
-        // Fast path — cart_id from session
-        if (cartId) {
-            try {
-                const cart = await cartService.retrieveCart(cartId)
-                return res.json({ cart })
-            } catch (e) {
-                // Cart no longer valid, fall through to lookup
-            }
-        }
-
-        // // Fallback — find open cart by prisoner
-        // const [carts] = await cartService.listCarts({
-        //     filters: {
-        //         metadata: { offenderNo },
-        //         status: "open"  // or however Medusa v2 filters active carts
-        //     }
-        // })
-        //
-        // if (carts.length > 0) {
-        //     const cart = carts[0]
-        //     return res.json({ cart })
-        // }
-
-        // No open cart exists
-        return res.json({ cart: null })
-
-    } catch (error) {
-        return res.status(500).json({ error: "Failed to retrieve cart" })
+  try {
+    const { metadata } = req.body as {
+      metadata: {
+        offenderNo: string
+        cartId: string
+      }
     }
+
+    const { offenderNo, cartId } = metadata
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+    let activeCart: any = null
+
+    // Where cartId was passed from user session
+    if (cartId) {
+      const {
+        data: [cart],
+      } = await query.graph({
+        entity: 'cart',
+        fields: ['id', 'items.id', 'items.variant_id', 'items.title', 'items.quantity', 'items.unit_price'],
+        filters: {
+          id: cartId,
+        },
+      })
+      activeCart = cart
+    }
+
+    // Where cartId was not passed from user session, verify if cart exists within medusa
+    if (!activeCart) {
+      const { data: prisoners } = await query.graph({
+        entity: 'prisoner',
+        fields: ['id', 'prisoner_id', 'customer.*'],
+        filters: {
+          prisoner_id: offenderNo,
+        },
+      })
+      const customerId = prisoners[0]?.customer?.id
+
+      const { data: carts } = await query.graph({
+        entity: 'cart',
+        fields: ['id', 'items.id', 'items.variant_id', 'items.title', 'items.quantity', 'items.unit_price'],
+        filters: {
+          customer_id: customerId,
+        },
+        pagination: {
+          order: {
+            created_at: 'DESC',
+          },
+        },
+      })
+      activeCart = carts.find(c => c.items?.length > 0)
+    }
+
+    // Where no cart exists
+    if (!activeCart) {
+      return res.json({ cartId: null, items: [], itemCount: 0, total: 0 })
+    }
+
+    const items = (activeCart.items || []).map(item => ({
+      lineItemId: item.id,
+      variantId: item.variant_id,
+      title: item.title,
+      quantity: item.quantity,
+      unitPrice: item.unit_price,
+      lineTotal: item.quantity * item.unit_price,
+    }))
+
+    const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
+    const allItemsTotal = items.reduce((sum, item) => sum + item.lineTotal, 0)
+
+    return res.json({
+      cartId: activeCart.id,
+      items,
+      itemCount,
+      allItemsTotal,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      errorCode: 'GET_CART_FAILED',
+      userMessage: 'Failed to get medusa cart',
+      developerMessage: `${(error as Error).message}`,
+    })
+  }
 }
