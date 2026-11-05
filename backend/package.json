@@ -80,8 +80,6 @@
     "@graphql-tools/utils": "12.0.2",
     "@opentelemetry/instrumentation-pg": "0.73.0",
     "follow-redirects": "1.16.1",
-    "@medusajs/medusa": {
-      "zod": "4.2.0"
-    }
+    "zod": "4.2.0"
   }
 }
