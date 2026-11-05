@@ -4,6 +4,7 @@ export default configureAllowedScripts({
   allowlist: {
     // Medusa telemetry - FORBID to disable telemetry
     'node_modules/@medusajs/telemetry@2.20.0': 'FORBID',
+    'node_modules/@scarf/scarf@1.4.0': 'FORBID',
 
     // Build tools
     'node_modules/@swc/core@1.16.1': ['postinstall'],
