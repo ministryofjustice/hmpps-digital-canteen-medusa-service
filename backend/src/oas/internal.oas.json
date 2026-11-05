@@ -85,13 +85,13 @@
             }
           },
           "itemCount": {
-            "type": "integer",
+            "type": "number",
             "description": "Total quantity of all items",
             "example": 5
           },
           "allItemsTotal": {
-            "type": "integer",
-            "description": "Total value of all itemsin basket",
+            "type": "number",
+            "description": "Total value of all items in basket",
             "example": 50
           }
         }
@@ -120,12 +120,12 @@
             "example": 3
           },
           "unitPrice": {
-            "type": "integer",
+            "type": "number",
             "description": "Price per item",
             "example": 85
           },
           "lineTotal": {
-            "type": "integer",
+            "type": "number",
             "description": "Overall item price",
             "example": 255
           }

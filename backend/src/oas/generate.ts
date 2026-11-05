@@ -63,8 +63,8 @@ const spec = swaggerJsdoc({
                 $ref: '#/components/schemas/BasketLineItem',
               },
             },
-            itemCount: { type: 'integer', description: 'Total quantity of all items', example: 5 },
-            allItemsTotal: { type: 'integer', description: 'Total value of all itemsin basket', example: 50 },
+            itemCount: { type: 'number', description: 'Total quantity of all items', example: 5 },
+            allItemsTotal: { type: 'number', description: 'Total value of all items in basket', example: 50 },
           },
         },
         BasketLineItem: {
@@ -82,8 +82,8 @@ const spec = swaggerJsdoc({
             },
             title: { type: 'string', description: 'Product title', example: 'Mars Bar' },
             quantity: { type: 'integer', description: 'Quantity in cart', example: 3 },
-            unitPrice: { type: 'integer', description: 'Price per item', example: 85 },
-            lineTotal: { type: 'integer', description: 'Overall item price', example: 255 },
+            unitPrice: { type: 'number', description: 'Price per item', example: 85 },
+            lineTotal: { type: 'number', description: 'Overall item price', example: 255 },
           },
         },
         AddLineItemsRequest: {
