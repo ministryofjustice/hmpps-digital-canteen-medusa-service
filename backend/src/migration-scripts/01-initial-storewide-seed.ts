@@ -57,6 +57,5 @@ export default async function initial_data_seed({ container }: { container: Medu
     logger.info('Tax regions already exist — skipping')
   }
 
-
   logger.info('Store wide seed complete')
 }
