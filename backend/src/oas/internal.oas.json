@@ -1,0 +1,471 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Medusa API",
+    "description": "Medusa API specifications",
+    "version": "1.0.0",
+    "contact": {
+      "name": "HMPPS Digital Studio",
+      "email": "feedback@digital.justice.gov.uk"
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateMedusaUserRequest": {
+        "type": "object",
+        "required": [
+          "metadata"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/CreateMedusaUserMetaData"
+          }
+        }
+      },
+      "CreateMedusaUserMetaData": {
+        "type": "object",
+        "required": [
+          "prisonId",
+          "offenderNo"
+        ],
+        "properties": {
+          "prisonId": {
+            "type": "string",
+            "description": "The prison identifier",
+            "example": "MDI"
+          },
+          "offenderNo": {
+            "type": "string",
+            "description": "The prisoner's offender number",
+            "example": "A1234BC"
+          }
+        }
+      },
+      "GetBasketRequest": {
+        "type": "object",
+        "required": [
+          "metadata"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/GetBasketRequestMetadata"
+          }
+        }
+      },
+      "GetBasketRequestMetadata": {
+        "type": "object",
+        "required": [
+          "offenderNo"
+        ],
+        "properties": {
+          "offenderNo": {
+            "type": "string",
+            "description": "The prisoner's offender number",
+            "example": "A1234BC"
+          },
+          "cartId": {
+            "type": "string",
+            "description": "ID of medusa cart, if already created",
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
+          }
+        }
+      },
+      "GetBasketResponse": {
+        "type": "object",
+        "properties": {
+          "cartId": {
+            "type": "string",
+            "description": "ID of medusa cart",
+            "example": "cart_01M6GHP256ZVB7N9MVKTNBG73A"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BasketLineItem"
+            }
+          },
+          "itemCount": {
+            "type": "number",
+            "description": "Total quantity of all items",
+            "example": 5
+          },
+          "allItemsTotal": {
+            "type": "number",
+            "description": "Total value of all items in basket",
+            "example": 50
+          }
+        }
+      },
+      "BasketLineItem": {
+        "type": "object",
+        "properties": {
+          "lineItemId": {
+            "type": "string",
+            "description": "The medusa line item ID",
+            "example": "cali_01M6GHP27VFW7096R5AQ0G5EHT"
+          },
+          "variantId": {
+            "type": "string",
+            "description": "The medusa product variant ID",
+            "example": "variant_01M6E4F0KWV67V7JV3TN7DMAM7"
+          },
+          "title": {
+            "type": "string",
+            "description": "Product title",
+            "example": "Mars Bar"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity in cart",
+            "example": 3
+          },
+          "unitPrice": {
+            "type": "number",
+            "description": "Price per item",
+            "example": 85
+          },
+          "lineTotal": {
+            "type": "number",
+            "description": "Overall item price",
+            "example": 255
+          }
+        }
+      },
+      "AddLineItemsRequest": {
+        "type": "object",
+        "required": [
+          "metadata"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/AddLineItemsRequestMetadata"
+          }
+        }
+      },
+      "AddLineItemsRequestMetadata": {
+        "type": "object",
+        "required": [
+          "prisonId",
+          "offenderNo",
+          "productVariantId"
+        ],
+        "properties": {
+          "prisonId": {
+            "type": "string",
+            "description": "The prison identifier",
+            "example": "MDI"
+          },
+          "offenderNo": {
+            "type": "string",
+            "description": "The prisoner's offender number",
+            "example": "A1234BC"
+          },
+          "cartId": {
+            "type": "string",
+            "description": "ID of medusa cart",
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
+          },
+          "productVariantId": {
+            "type": "string",
+            "description": "The variant Id of the product to add to cart",
+            "example": "var_1234"
+          }
+        }
+      },
+      "AddLineItemsResponse": {
+        "type": "object",
+        "required": [
+          "cartId"
+        ],
+        "properties": {
+          "cartId": {
+            "type": "string",
+            "description": "ID of medusa cart",
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
+          }
+        }
+      },
+      "RemoveLineItemsRequest": {
+        "type": "object",
+        "required": [
+          "metadata"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/RemoveLineItemsRequestMetadata"
+          }
+        }
+      },
+      "RemoveLineItemsRequestMetadata": {
+        "type": "object",
+        "required": [
+          "cartId",
+          "lineItemId",
+          "quantity"
+        ],
+        "properties": {
+          "cartId": {
+            "type": "string",
+            "description": "ID of medusa cart",
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
+          },
+          "lineItemId": {
+            "type": "string",
+            "description": "The ID of the line item to remove from the cart",
+            "example": "var_1234"
+          },
+          "quantity": {
+            "type": "string",
+            "description": "The new quantity of the line item, when quantity hits 0, delete item from basket",
+            "example": "var_1234"
+          }
+        }
+      },
+      "RemoveLineItemsResponse": {
+        "type": "object",
+        "required": [
+          "cartId"
+        ],
+        "properties": {
+          "cartId": {
+            "type": "string",
+            "description": "ID of medusa cart",
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
+          }
+        }
+      },
+      "RemoveBasketRequest": {
+        "type": "object",
+        "required": [
+          "metadata"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/RemoveBasketMetadata"
+          }
+        }
+      },
+      "RemoveBasketMetadata": {
+        "type": "object",
+        "required": [
+          "cartId"
+        ],
+        "properties": {
+          "cartId": {
+            "type": "string",
+            "description": "ID of medusa cart",
+            "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 500
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "userMessage": {
+            "type": "string"
+          },
+          "developerMessage": {
+            "type": "string"
+          },
+          "moreInfo": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/internal/canteen/create-user": {
+      "post": {
+        "operationId": "createMedusaUser",
+        "summary": "Create a Medusa User",
+        "description": "Creates a Medusa user for a prisoner. Linking prisoner to customer\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMedusaUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created Medusa user"
+          },
+          "500": {
+            "description": "Failed to create cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/canteen/carts/remove-line-item": {
+      "post": {
+        "operationId": "removeLineItem",
+        "summary": "Remove line Item",
+        "description": "Removes a line item from the medusa cart\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveLineItemsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Items successfully removed from cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoveLineItemsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to create cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/canteen/carts/remove-basket": {
+      "post": {
+        "operationId": "removeBasket",
+        "summary": "Remove Medusa Basket",
+        "description": "Remove Medusa Basket\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveBasketRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Items successfully removed from cart"
+          },
+          "500": {
+            "description": "Failed to remove cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/canteen/carts/get-basket": {
+      "post": {
+        "operationId": "getMedusaBasket",
+        "summary": "Get the medusa basket and details, if it exists",
+        "description": "Get the medusa basket and details, if it exists\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetBasketRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Medusa basket successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetBasketRequest"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to create cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/canteen/carts/add-line-item": {
+      "post": {
+        "operationId": "addLineItem",
+        "summary": "Add item to existing cart, or create new cart and add item",
+        "description": "Where a medusa cart already exists, add the product variant to the cart. If no cart exists, create a new cart and add the product variant.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddLineItemsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Items successfully added to cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddLineItemsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to add line items to cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}
