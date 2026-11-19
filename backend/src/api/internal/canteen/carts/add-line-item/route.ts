@@ -33,16 +33,17 @@ import { addToCartWorkflow, createCartWorkflow } from '@medusajs/medusa/core-flo
  */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
-    const { metadata } = req.body as {
-      metadata: {
+    const { data } = req.body as {
+      data: {
         prisonId: string
         offenderNo: string
         cartId: string
         productVariantId: string
+        canteenWindowEnd: string
       }
     }
 
-    const { prisonId, offenderNo, cartId, productVariantId } = metadata
+    const { prisonId, offenderNo, cartId, productVariantId, canteenWindowEnd } = data
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
     if (!offenderNo) {
@@ -102,7 +103,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
         region_id: regionId,
         sales_channel_id: salesChannelId,
         customer_id: customerId,
-        metadata: { order_type: 'CANTEEN' },
+        metadata: { order_type: 'CANTEEN', canteen_window_end: canteenWindowEnd, cart_submitted: false },
       },
     })
 

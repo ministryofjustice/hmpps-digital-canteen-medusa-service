@@ -17,7 +17,7 @@ import { Modules } from '@medusajs/framework/utils'
  *             $ref: '#/components/schemas/RemoveBasketRequest'
  *     responses:
  *       200:
- *         description: Items successfully removed from cart
+ *         description: Medusa cart successfully removed
  *       500:
  *         description: Failed to remove cart
  *         content:
@@ -27,12 +27,12 @@ import { Modules } from '@medusajs/framework/utils'
  */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
-    const { metadata } = req.body as {
-      metadata: {
+    const { data } = req.body as {
+      data: {
         cartId: string
       }
     }
-    const { cartId } = metadata
+    const { cartId } = data
     const cartModule = req.scope.resolve(Modules.CART)
 
     await cartModule.deleteCarts(cartId)

@@ -25,7 +25,7 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
 
     req = {
       body: {
-        metadata: {
+        data: {
           offenderNo: 'XYZ123',
           cartId: 'cart123',
         },
@@ -51,7 +51,7 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
 
     expect(queryService.graph).toHaveBeenCalledWith({
       entity: 'cart',
-      fields: ['id', 'items.id', 'items.variant_id', 'items.title', 'items.quantity', 'items.unit_price'],
+      fields: ['id', 'metadata', 'items.id', 'items.variant_id', 'items.title', 'items.quantity', 'items.unit_price'],
       filters: { id: 'cart123' },
     })
     expect(res.json).toHaveBeenCalledWith({
@@ -65,7 +65,7 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
   })
 
   it('Where cart ID not in request, use prisoner ID to find any cart associated', async () => {
-    req.body.metadata.cartId = null
+    req.body.data.cartId = null
     queryService.graph.mockResolvedValueOnce({
       data: [{ id: '1', prisoner_id: 'XYZ123', customer: { id: 'CUSXYZ' } }],
     })

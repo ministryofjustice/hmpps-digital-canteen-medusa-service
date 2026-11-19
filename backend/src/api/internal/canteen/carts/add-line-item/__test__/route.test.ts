@@ -42,7 +42,7 @@ describe('POST handler - /internal/canteen/carts/add-line-item', () => {
 
     req = {
       body: {
-        metadata: {
+        data: {
           prisonId: 'ASI',
           offenderNo: '12345',
           cartId: '123',
@@ -58,7 +58,7 @@ describe('POST handler - /internal/canteen/carts/add-line-item', () => {
   })
 
   it('404 when user details not provided', async () => {
-    req.body.metadata.offenderNo = null
+    req.body.data.offenderNo = null
     await POST(req, res)
 
     // Response
@@ -113,7 +113,7 @@ describe('POST handler - /internal/canteen/carts/add-line-item', () => {
   })
 
   it('Should create a new cart when no cartId provided', async () => {
-    req.body.metadata.cartId = null
+    req.body.data.cartId = null
     queryService.graph
       .mockResolvedValueOnce({
         data: [{ id: '123457', prisoner_id: 'prisxyz', customer: { id: 'customerabc' } }],

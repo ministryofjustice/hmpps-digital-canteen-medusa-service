@@ -28,14 +28,14 @@ import { PRISONER_MODULE } from '../../../../modules/prisoner-details'
  */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
-    const { metadata } = req.body as {
-      metadata: {
+    const { data } = req.body as {
+      data: {
         prisonId: string
         offenderNo: string
       }
     }
 
-    const { prisonId, offenderNo } = metadata
+    const { prisonId, offenderNo } = data
     const prisonerService = req.scope.resolve(PRISONER_MODULE)
     const customerService = req.scope.resolve(Modules.CUSTOMER)
     const link = req.scope.resolve(ContainerRegistrationKeys.LINK)
