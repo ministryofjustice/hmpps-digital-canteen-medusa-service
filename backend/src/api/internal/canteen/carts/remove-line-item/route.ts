@@ -31,15 +31,16 @@ import { deleteLineItemsWorkflow, updateLineItemInCartWorkflow } from '@medusajs
  */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
-    const { metadata } = req.body as {
-      metadata: {
+    const { data } = req.body as {
+      data: {
         cartId: string
         lineItemId: string
         quantity: number
       }
     }
-    const { cartId, lineItemId, quantity } = metadata
+    const { cartId, lineItemId, quantity } = data
 
+    // handles updating quantity on item removal, if removal leads to 0 items, it needs deleted
     if (quantity <= 0) {
       await deleteLineItemsWorkflow(req.scope).run({
         input: {

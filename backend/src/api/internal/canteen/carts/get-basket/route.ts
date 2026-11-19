@@ -12,14 +12,17 @@ interface CartQueryResult {
   }[]
 }
 
+const isSubmitted = (cart?: { metadata?: Record<string, unknown> | null } | null) =>
+  cart?.metadata?.cart_submitted === true
+
 /**
  * @openapi
  * /internal/canteen/carts/get-basket:
  *   post:
  *     operationId: getMedusaBasket
- *     summary: Get the medusa basket and details, if it exists
+ *     summary: Get the medusa basket and details, if it exists and any draft orders
  *     description: >
- *       Get the medusa basket and details, if it exists
+ *       Get the medusa basket and details, if it exists and any draft orders
  *     requestBody:
  *       required: true
  *       content:
@@ -28,11 +31,11 @@ interface CartQueryResult {
  *             $ref: '#/components/schemas/GetBasketRequest'
  *     responses:
  *       200:
- *         description: Medusa basket successfully retrieved
+ *         description: Medusa basket and order successfully retrieved
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/GetBasketRequest'
+ *               $ref: '#/components/schemas/GetBasketResponse'
  *       500:
  *         description: Failed to create cart
  *         content:
@@ -42,63 +45,79 @@ interface CartQueryResult {
  */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
-    const { metadata } = req.body as {
-      metadata: {
+    const { data } = req.body as {
+      data: {
         offenderNo: string
         cartId: string
       }
     }
 
-    const { offenderNo, cartId } = metadata
+    const { offenderNo, cartId } = data
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
     let activeCart: CartQueryResult | undefined
 
-    // Where cartId was passed from user session
+    // get customer ID from prisoner number
+    const { data: prisoners } = await query.graph({
+      entity: 'prisoner',
+      fields: ['id', 'prisoner_id', 'customer.*'],
+      filters: {
+        prisoner_id: offenderNo,
+      },
+    })
+    const customerId = prisoners[0]?.customer?.id
+
+    // Where cart ID is provided return it, providing cart has no been submitted already
     if (cartId) {
       const {
         data: [cart],
       } = await query.graph({
         entity: 'cart',
-        fields: ['id', 'items.id', 'items.variant_id', 'items.title', 'items.quantity', 'items.unit_price'],
-        filters: {
-          id: cartId,
-        },
+        fields: ['id', 'metadata', 'items.id', 'items.variant_id', 'items.title', 'items.quantity', 'items.unit_price'],
+        filters: { id: cartId },
       })
-      activeCart = cart as CartQueryResult
+      if (cart && !isSubmitted(cart)) {
+        activeCart = cart as CartQueryResult
+      }
     }
 
-    // Where cartId was not passed from user session, verify if cart exists within medusa
-    if (!activeCart) {
-      const { data: prisoners } = await query.graph({
-        entity: 'prisoner',
-        fields: ['id', 'prisoner_id', 'customer.*'],
-        filters: {
-          prisoner_id: offenderNo,
-        },
-      })
-      const customerId = prisoners[0]?.customer?.id
-
+    // Where no cart ID provided (not in session), check fi any cart exists against the customer/prisoner
+    if (!activeCart && customerId) {
       const { data: carts } = await query.graph({
         entity: 'cart',
-        fields: ['id', 'items.id', 'items.variant_id', 'items.title', 'items.quantity', 'items.unit_price'],
-        filters: {
-          customer_id: customerId,
-        },
+        fields: ['id', 'metadata', 'items.id', 'items.variant_id', 'items.title', 'items.quantity', 'items.unit_price'],
+        filters: { customer_id: customerId },
         pagination: {
-          order: {
-            created_at: 'DESC',
-          },
+          order: { created_at: 'DESC' },
         },
       })
-      activeCart = carts.find(c => c.items?.length > 0) as CartQueryResult | undefined
+      activeCart = carts.find(c => c.items?.length && !isSubmitted(c)) as CartQueryResult | undefined
     }
 
-    // Where no cart exists
+    // Find any existing draft order (a previously submitted cart)
+    let draftOrderId: string | undefined
+    if (customerId) {
+      const { data: draftOrders } = await query.graph({
+        entity: 'order',
+        fields: ['id'],
+        filters: {
+          customer_id: customerId,
+          is_draft_order: true,
+          status: 'draft',
+        },
+        pagination: {
+          order: { created_at: 'DESC' },
+          take: 1,
+        },
+      })
+      draftOrderId = draftOrders[0]?.id as string | undefined
+    }
+
+    // Where no cart is found
     if (!activeCart) {
-      return res.json({ cartId: null, items: [], itemCount: 0, total: 0 })
+      return res.json({ cartId: null, items: [], itemCount: 0, allItemsTotal: 0, draftOrderId })
     }
 
+    // todo: mostly a placeholder for now, will be updated once data model is confirmed
     const items = (activeCart.items || []).map(item => ({
       lineItemId: item.id,
       variantId: item.variant_id,
@@ -108,14 +127,12 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       lineTotal: item.quantity * item.unit_price,
     }))
 
-    const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
-    const allItemsTotal = items.reduce((sum, item) => sum + item.lineTotal, 0)
-
     return res.json({
       cartId: activeCart.id,
       items,
-      itemCount,
-      allItemsTotal,
+      itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+      allItemsTotal: items.reduce((sum, item) => sum + item.lineTotal, 0),
+      draftOrderId,
     })
   } catch (error) {
     return res.status(500).json({

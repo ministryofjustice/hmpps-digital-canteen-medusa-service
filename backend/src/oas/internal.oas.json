@@ -14,15 +14,15 @@
       "CreateMedusaUserRequest": {
         "type": "object",
         "required": [
-          "metadata"
+          "data"
         ],
         "properties": {
-          "metadata": {
-            "$ref": "#/components/schemas/CreateMedusaUserMetaData"
+          "data": {
+            "$ref": "#/components/schemas/CreateMedusaUserData"
           }
         }
       },
-      "CreateMedusaUserMetaData": {
+      "CreateMedusaUserData": {
         "type": "object",
         "required": [
           "prisonId",
@@ -44,15 +44,15 @@
       "GetBasketRequest": {
         "type": "object",
         "required": [
-          "metadata"
+          "data"
         ],
         "properties": {
-          "metadata": {
-            "$ref": "#/components/schemas/GetBasketRequestMetadata"
+          "data": {
+            "$ref": "#/components/schemas/GetBasketRequestData"
           }
         }
       },
-      "GetBasketRequestMetadata": {
+      "GetBasketRequestData": {
         "type": "object",
         "required": [
           "offenderNo"
@@ -93,6 +93,11 @@
             "type": "number",
             "description": "Total value of all items in basket",
             "example": 50
+          },
+          "draftOrderId": {
+            "type": "string",
+            "description": "Draft order Id, if a draft order exists",
+            "example": "123"
           }
         }
       },
@@ -134,15 +139,15 @@
       "AddLineItemsRequest": {
         "type": "object",
         "required": [
-          "metadata"
+          "data"
         ],
         "properties": {
-          "metadata": {
-            "$ref": "#/components/schemas/AddLineItemsRequestMetadata"
+          "data": {
+            "$ref": "#/components/schemas/AddLineItemsRequestData"
           }
         }
       },
-      "AddLineItemsRequestMetadata": {
+      "AddLineItemsRequestData": {
         "type": "object",
         "required": [
           "prisonId",
@@ -169,6 +174,12 @@
             "type": "string",
             "description": "The variant Id of the product to add to cart",
             "example": "var_1234"
+          },
+          "canteenWindowEnd": {
+            "type": "string",
+            "format": "datetime",
+            "description": "The end date of the current canteen window",
+            "example": "2024-05-26T14:23:16Z"
           }
         }
       },
@@ -188,15 +199,15 @@
       "RemoveLineItemsRequest": {
         "type": "object",
         "required": [
-          "metadata"
+          "data"
         ],
         "properties": {
-          "metadata": {
-            "$ref": "#/components/schemas/RemoveLineItemsRequestMetadata"
+          "data": {
+            "$ref": "#/components/schemas/RemoveLineItemsRequestData"
           }
         }
       },
-      "RemoveLineItemsRequestMetadata": {
+      "RemoveLineItemsRequestData": {
         "type": "object",
         "required": [
           "cartId",
@@ -237,15 +248,15 @@
       "RemoveBasketRequest": {
         "type": "object",
         "required": [
-          "metadata"
+          "data"
         ],
         "properties": {
-          "metadata": {
-            "$ref": "#/components/schemas/RemoveBasketMetadata"
+          "data": {
+            "$ref": "#/components/schemas/RemoveBasketData"
           }
         }
       },
-      "RemoveBasketMetadata": {
+      "RemoveBasketData": {
         "type": "object",
         "required": [
           "cartId"
@@ -255,6 +266,126 @@
             "type": "string",
             "description": "ID of medusa cart",
             "example": "cart_01M6EJSR29XNFFAFPVMJZPQZ2W"
+          }
+        }
+      },
+      "CreateDraftOrderRequest": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CreateDraftOrderRequestData"
+          }
+        }
+      },
+      "CreateDraftOrderRequestData": {
+        "type": "object",
+        "properties": {
+          "draftOrderId": {
+            "type": "string",
+            "description": "The draft order ID, if draft order already exists",
+            "example": "ord_123"
+          }
+        }
+      },
+      "CreateDraftOrderResponse": {
+        "type": "object",
+        "required": [
+          "draftOrderId"
+        ],
+        "properties": {
+          "draftOrderId": {
+            "type": "string",
+            "description": "The draft order ID",
+            "example": "ord_123"
+          }
+        }
+      },
+      "GetDraftOrderResponse": {
+        "type": "object",
+        "required": [
+          "hasDraftOrder"
+        ],
+        "properties": {
+          "hasDraftOrder": {
+            "type": "boolean",
+            "description": "Denotes whether a draft order exists",
+            "example": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftOrderLineItem"
+            }
+          },
+          "itemCount": {
+            "type": "integer",
+            "description": "Total quantity of all items in order",
+            "example": 5
+          },
+          "subtotal": {
+            "type": "number",
+            "description": "Order subtotal before tax",
+            "example": 1250
+          },
+          "total": {
+            "type": "number",
+            "description": "Order total",
+            "example": 1500
+          }
+        }
+      },
+      "DraftOrderLineItem": {
+        "type": "object",
+        "required": [
+          "title",
+          "quantity",
+          "unitPrice",
+          "lineTotal"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Product title",
+            "example": "Banana"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity in order",
+            "example": 3
+          },
+          "unitPrice": {
+            "type": "number",
+            "description": "Price per unit",
+            "example": 85
+          },
+          "lineTotal": {
+            "type": "number",
+            "description": "Total for this line item",
+            "example": 255
+          }
+        }
+      },
+      "CancelDraftOrderRequest": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CancelDraftOrderRequestData"
+          }
+        }
+      },
+      "CancelDraftOrderRequestData": {
+        "type": "object",
+        "properties": {
+          "draftOrderId": {
+            "type": "string",
+            "description": "The draft order ID to be canceled",
+            "example": "ord_123"
           }
         }
       },
@@ -285,6 +416,126 @@
     }
   },
   "paths": {
+    "/internal/canteen/orders/cancel-order": {
+      "post": {
+        "operationId": "cancelOrder",
+        "summary": "Cancel Medusa Order",
+        "description": "Cancels an in draft medusa order\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelDraftOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Draft order has successfully been canceled"
+          },
+          "500": {
+            "description": "Failed to cancel draft order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/canteen/get-draft-order/{id}": {
+      "get": {
+        "operationId": "getDraftOrder",
+        "summary": "Get a draft order and its items",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "order_01M7AM87CYVP7V81VYQ1K1D7R1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Draft order successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetDraftOrderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Draft order not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to get draft order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/canteen/orders/[id]/create-draft-order": {
+      "post": {
+        "operationId": "createDraftOrder",
+        "summary": "Creates a draft order within medusa",
+        "description": "Creates draft order, If no draftOrderId in request, we create a new draft oder and add the carts items into it, If a draftOrder is provided, we take the items from the cart, and add those items into existing draft order.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDraftOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Medusa draft order successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateDraftOrderResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to create draft order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/canteen/create-user": {
       "post": {
         "operationId": "createMedusaUser",
@@ -373,7 +624,7 @@
         },
         "responses": {
           "200": {
-            "description": "Items successfully removed from cart"
+            "description": "Medusa cart successfully removed"
           },
           "500": {
             "description": "Failed to remove cart",
@@ -391,8 +642,8 @@
     "/internal/canteen/carts/get-basket": {
       "post": {
         "operationId": "getMedusaBasket",
-        "summary": "Get the medusa basket and details, if it exists",
-        "description": "Get the medusa basket and details, if it exists\n",
+        "summary": "Get the medusa basket and details, if it exists and any draft orders",
+        "description": "Get the medusa basket and details, if it exists and any draft orders\n",
         "requestBody": {
           "required": true,
           "content": {
@@ -405,11 +656,11 @@
         },
         "responses": {
           "200": {
-            "description": "Medusa basket successfully retrieved",
+            "description": "Medusa basket and order successfully retrieved",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetBasketRequest"
+                  "$ref": "#/components/schemas/GetBasketResponse"
                 }
               }
             }
