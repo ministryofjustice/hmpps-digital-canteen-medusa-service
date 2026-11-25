@@ -10,7 +10,7 @@ jest.mock('@medusajs/medusa/core-flows', () => ({
   }),
 }))
 
-describe('POST handler - /internal/canteen/carts/update-line-item', () => {
+describe('POST handler - /internal/canteen/carts/remove-line-item', () => {
   let req: any
   let res: any
 
@@ -19,7 +19,7 @@ describe('POST handler - /internal/canteen/carts/update-line-item', () => {
 
     req = {
       body: {
-        metadata: {
+        data: {
           cartId: 'cart123',
           lineItemId: 'line123',
           quantity: 2,
@@ -49,7 +49,7 @@ describe('POST handler - /internal/canteen/carts/update-line-item', () => {
   })
 
   it('Should delete line item when quantity in request is 0', async () => {
-    req.body.metadata.quantity = 0
+    req.body.data.quantity = 0
 
     await POST(req, res)
 
@@ -65,7 +65,7 @@ describe('POST handler - /internal/canteen/carts/update-line-item', () => {
   })
 
   it('Should delete line item when quantity in request is negative', async () => {
-    req.body.metadata.quantity = -1
+    req.body.data.quantity = -1
 
     await POST(req, res)
 

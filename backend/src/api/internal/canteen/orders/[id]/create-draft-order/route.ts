@@ -127,7 +127,7 @@ export const POST = async (req: AuthenticatedMedusaRequest, res: MedusaResponse)
         filters: { id: draftOrderId },
       })
 
-      if (!draftOrder.is_draft_order) {
+      if (!draftOrder?.is_draft_order) {
         return errorResponse(
           res,
           404,

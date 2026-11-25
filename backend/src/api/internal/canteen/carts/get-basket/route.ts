@@ -66,7 +66,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     })
     const customerId = prisoners[0]?.customer?.id
 
-    // Where cart ID is provided return it, providing cart has no been submitted already
+    // Where cart ID is provided return it, providing cart has not been submitted already
     if (cartId) {
       const {
         data: [cart],

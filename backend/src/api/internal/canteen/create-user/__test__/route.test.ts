@@ -48,7 +48,7 @@ describe('POST /internal/canteen/create-user', () => {
 
     req = {
       body: {
-        metadata: {
+        data: {
           prisonId: 'ASI123',
           offenderNo: 'STU999',
         },
