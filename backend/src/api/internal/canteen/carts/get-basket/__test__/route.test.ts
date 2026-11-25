@@ -86,16 +86,16 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
     await POST(req, res)
 
     expect(queryService.graph).toHaveBeenCalledWith(
-        expect.objectContaining({
-          entity: 'prisoner',
-          filters: { prisoner_id: 'XYZ123' },
-        }),
+      expect.objectContaining({
+        entity: 'prisoner',
+        filters: { prisoner_id: 'XYZ123' },
+      }),
     )
     expect(queryService.graph).toHaveBeenCalledWith(
-        expect.objectContaining({
-          entity: 'cart',
-          filters: { customer_id: 'CUSXYZ' },
-        }),
+      expect.objectContaining({
+        entity: 'cart',
+        filters: { customer_id: 'CUSXYZ' },
+      }),
     )
     expect(res.json).toHaveBeenCalledWith({
       cartId: 'cart123',
@@ -145,14 +145,14 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
     await POST(req, res)
 
     expect(queryService.graph).toHaveBeenCalledWith(
-        expect.objectContaining({
-          entity: 'order',
-          filters: {
-            customer_id: 'CUSXYZ',
-            is_draft_order: true,
-            status: 'draft',
-          },
-        }),
+      expect.objectContaining({
+        entity: 'order',
+        filters: {
+          customer_id: 'CUSXYZ',
+          is_draft_order: true,
+          status: 'draft',
+        },
+      }),
     )
     expect(res.json).toHaveBeenCalledWith({
       cartId: 'cart123',
