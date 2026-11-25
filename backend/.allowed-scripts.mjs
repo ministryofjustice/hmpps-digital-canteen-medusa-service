@@ -7,10 +7,10 @@ export default configureAllowedScripts({
     'node_modules/@scarf/scarf@1.4.0': 'FORBID',
 
     // Build tools
-    'node_modules/@swc/core@1.16.1': ['postinstall'],
+    'node_modules/@swc/core@1.16.22': ['postinstall'],
 
     // Native modules
-    'node_modules/msgpackr-extract@3.0.4': ['install'],
+    'node_modules/msgpackr-extract@3.0.7': ['install'],
 
     // Protocol buffers
     'node_modules/protobufjs@7.6.6': ['postinstall'],

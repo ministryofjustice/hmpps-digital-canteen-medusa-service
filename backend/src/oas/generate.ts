@@ -17,14 +17,14 @@ const spec = swaggerJsdoc({
       schemas: {
         CreateMedusaUserRequest: {
           type: 'object',
-          required: ['metadata'],
+          required: ['data'],
           properties: {
-            metadata: {
-              $ref: '#/components/schemas/CreateMedusaUserMetaData',
+            data: {
+              $ref: '#/components/schemas/CreateMedusaUserData',
             },
           },
         },
-        CreateMedusaUserMetaData: {
+        CreateMedusaUserData: {
           type: 'object',
           required: ['prisonId', 'offenderNo'],
           properties: {
@@ -34,14 +34,14 @@ const spec = swaggerJsdoc({
         },
         GetBasketRequest: {
           type: 'object',
-          required: ['metadata'],
+          required: ['data'],
           properties: {
-            metadata: {
-              $ref: '#/components/schemas/GetBasketRequestMetadata',
+            data: {
+              $ref: '#/components/schemas/GetBasketRequestData',
             },
           },
         },
-        GetBasketRequestMetadata: {
+        GetBasketRequestData: {
           type: 'object',
           required: ['offenderNo'],
           properties: {
@@ -57,14 +57,10 @@ const spec = swaggerJsdoc({
           type: 'object',
           properties: {
             cartId: { type: 'string', description: 'ID of medusa cart', example: 'cart_01M6GHP256ZVB7N9MVKTNBG73A' },
-            items: {
-              type: 'array',
-              items: {
-                $ref: '#/components/schemas/BasketLineItem',
-              },
-            },
+            items: { type: 'array', items: { $ref: '#/components/schemas/BasketLineItem' } },
             itemCount: { type: 'number', description: 'Total quantity of all items', example: 5 },
             allItemsTotal: { type: 'number', description: 'Total value of all items in basket', example: 50 },
+            draftOrderId: { type: 'string', description: 'Draft order Id, if a draft order exists', example: '123' },
           },
         },
         BasketLineItem: {
@@ -88,14 +84,14 @@ const spec = swaggerJsdoc({
         },
         AddLineItemsRequest: {
           type: 'object',
-          required: ['metadata'],
+          required: ['data'],
           properties: {
-            metadata: {
-              $ref: '#/components/schemas/AddLineItemsRequestMetadata',
+            data: {
+              $ref: '#/components/schemas/AddLineItemsRequestData',
             },
           },
         },
-        AddLineItemsRequestMetadata: {
+        AddLineItemsRequestData: {
           type: 'object',
           required: ['prisonId', 'offenderNo', 'productVariantId'],
           properties: {
@@ -106,6 +102,12 @@ const spec = swaggerJsdoc({
               type: 'string',
               description: 'The variant Id of the product to add to cart',
               example: 'var_1234',
+            },
+            canteenWindowEnd: {
+              type: 'string',
+              format: 'datetime',
+              description: 'The end date of the current canteen window',
+              example: '2024-05-26T14:23:16Z',
             },
           },
         },
@@ -118,14 +120,14 @@ const spec = swaggerJsdoc({
         },
         RemoveLineItemsRequest: {
           type: 'object',
-          required: ['metadata'],
+          required: ['data'],
           properties: {
-            metadata: {
-              $ref: '#/components/schemas/RemoveLineItemsRequestMetadata',
+            data: {
+              $ref: '#/components/schemas/RemoveLineItemsRequestData',
             },
           },
         },
-        RemoveLineItemsRequestMetadata: {
+        RemoveLineItemsRequestData: {
           type: 'object',
           required: ['cartId', 'lineItemId', 'quantity'],
           properties: {
@@ -151,18 +153,85 @@ const spec = swaggerJsdoc({
         },
         RemoveBasketRequest: {
           type: 'object',
-          required: ['metadata'],
+          required: ['data'],
           properties: {
-            metadata: {
-              $ref: '#/components/schemas/RemoveBasketMetadata',
+            data: {
+              $ref: '#/components/schemas/RemoveBasketData',
             },
           },
         },
-        RemoveBasketMetadata: {
+        RemoveBasketData: {
           type: 'object',
           required: ['cartId'],
           properties: {
             cartId: { type: 'string', description: 'ID of medusa cart', example: 'cart_01M6EJSR29XNFFAFPVMJZPQZ2W' },
+          },
+        },
+        CreateDraftOrderRequest: {
+          type: 'object',
+          required: ['data'],
+          properties: {
+            data: {
+              $ref: '#/components/schemas/CreateDraftOrderRequestData',
+            },
+          },
+        },
+        CreateDraftOrderRequestData: {
+          type: 'object',
+          properties: {
+            draftOrderId: {
+              type: 'string',
+              description: 'The draft order ID, if draft order already exists',
+              example: 'ord_123',
+            },
+          },
+        },
+        CreateDraftOrderResponse: {
+          type: 'object',
+          required: ['draftOrderId'],
+          properties: {
+            draftOrderId: { type: 'string', description: 'The draft order ID', example: 'ord_123' },
+          },
+        },
+        GetDraftOrderResponse: {
+          type: 'object',
+          required: ['hasDraftOrder'],
+          properties: {
+            hasDraftOrder: { type: 'boolean', description: 'Denotes whether a draft order exists', example: true },
+            items: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/DraftOrderLineItem',
+              },
+            },
+            itemCount: { type: 'integer', description: 'Total quantity of all items in order', example: 5 },
+            subtotal: { type: 'number', description: 'Order subtotal before tax', example: 1250 },
+            total: { type: 'number', description: 'Order total', example: 1500 },
+          },
+        },
+        DraftOrderLineItem: {
+          type: 'object',
+          required: ['title', 'quantity', 'unitPrice', 'lineTotal'],
+          properties: {
+            title: { type: 'string', description: 'Product title', example: 'Banana' },
+            quantity: { type: 'integer', description: 'Quantity in order', example: 3 },
+            unitPrice: { type: 'number', description: 'Price per unit', example: 85 },
+            lineTotal: { type: 'number', description: 'Total for this line item', example: 255 },
+          },
+        },
+        CancelDraftOrderRequest: {
+          type: 'object',
+          required: ['data'],
+          properties: {
+            data: {
+              $ref: '#/components/schemas/CancelDraftOrderRequestData',
+            },
+          },
+        },
+        CancelDraftOrderRequestData: {
+          type: 'object',
+          properties: {
+            draftOrderId: { type: 'string', description: 'The draft order ID to be canceled', example: 'ord_123' },
           },
         },
         ErrorResponse: {

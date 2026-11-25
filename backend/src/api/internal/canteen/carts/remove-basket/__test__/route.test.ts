@@ -35,7 +35,7 @@ describe('POST handler - /internal/canteen/carts/remove-basket', () => {
 
     req = {
       body: {
-        metadata: {
+        data: {
           cartId: 'cart123',
         },
       },

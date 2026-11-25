@@ -25,7 +25,7 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
 
     req = {
       body: {
-        metadata: {
+        data: {
           offenderNo: 'XYZ123',
           cartId: 'cart123',
         },
@@ -40,18 +40,24 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
 
   it('Where cart ID provided in request, current/active cart should correspond to that', async () => {
     queryService.graph.mockResolvedValueOnce({
+      data: [{ id: '1', prisoner_id: 'XYZ123', customer: { id: 'CUSXYZ' } }],
+    })
+    queryService.graph.mockResolvedValueOnce({
       data: [
         {
           id: 'cart123',
+          metadata: {},
           items: [{ id: '123', variant_id: 'variant1', title: 'cheese :)', quantity: 2, unit_price: 10 }],
         },
       ],
     })
+    queryService.graph.mockResolvedValueOnce({ data: [] })
+
     await POST(req, res)
 
     expect(queryService.graph).toHaveBeenCalledWith({
       entity: 'cart',
-      fields: ['id', 'items.id', 'items.variant_id', 'items.title', 'items.quantity', 'items.unit_price'],
+      fields: ['id', 'metadata', 'items.id', 'items.variant_id', 'items.title', 'items.quantity', 'items.unit_price'],
       filters: { id: 'cart123' },
     })
     expect(res.json).toHaveBeenCalledWith({
@@ -61,11 +67,12 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
       ],
       itemCount: 2,
       allItemsTotal: 20,
+      draftOrderId: undefined,
     })
   })
 
   it('Where cart ID not in request, use prisoner ID to find any cart associated', async () => {
-    req.body.metadata.cartId = null
+    req.body.data.cartId = null
     queryService.graph.mockResolvedValueOnce({
       data: [{ id: '1', prisoner_id: 'XYZ123', customer: { id: 'CUSXYZ' } }],
     })
@@ -74,6 +81,7 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
         { id: 'cart123', items: [{ id: '123', variant_id: 'variant1', title: 'cheese', quantity: 1, unit_price: 9 }] },
       ],
     })
+    queryService.graph.mockResolvedValueOnce({ data: [] })
 
     await POST(req, res)
 
@@ -94,14 +102,16 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
       items: [{ lineItemId: '123', variantId: 'variant1', title: 'cheese', quantity: 1, unitPrice: 9, lineTotal: 9 }],
       itemCount: 1,
       allItemsTotal: 9,
+      draftOrderId: undefined,
     })
   })
 
   it('Should return empty cart when no cart ID in request, and no cart found associated to prisoner', async () => {
-    req.body.metadata.cartId = null
+    req.body.data.cartId = null
     queryService.graph.mockResolvedValueOnce({
       data: [{ id: '1', prisoner_id: 'XYZ123', customer: { id: 'CUSXYZ' } }],
     })
+    queryService.graph.mockResolvedValueOnce({ data: [] })
     queryService.graph.mockResolvedValueOnce({ data: [] })
 
     await POST(req, res)
@@ -110,7 +120,67 @@ describe('POST handler - /internal/canteen/carts/get-basket', () => {
       cartId: null,
       items: [],
       itemCount: 0,
-      total: 0,
+      allItemsTotal: 0,
+      draftOrderId: undefined,
+    })
+  })
+
+  it('Should return draftOrderId when a draft order exists for the customer', async () => {
+    queryService.graph.mockResolvedValueOnce({
+      data: [{ id: '1', prisoner_id: 'XYZ123', customer: { id: 'CUSXYZ' } }],
+    })
+    queryService.graph.mockResolvedValueOnce({
+      data: [
+        {
+          id: 'cart123',
+          metadata: {},
+          items: [{ id: '123', variant_id: 'variant1', title: 'cheese', quantity: 1, unit_price: 5 }],
+        },
+      ],
+    })
+    queryService.graph.mockResolvedValueOnce({
+      data: [{ id: 'order_123' }],
+    })
+
+    await POST(req, res)
+
+    expect(queryService.graph).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entity: 'order',
+        filters: {
+          customer_id: 'CUSXYZ',
+          is_draft_order: true,
+          status: 'draft',
+        },
+      }),
+    )
+    expect(res.json).toHaveBeenCalledWith({
+      cartId: 'cart123',
+      items: [{ lineItemId: '123', variantId: 'variant1', title: 'cheese', quantity: 1, unitPrice: 5, lineTotal: 5 }],
+      itemCount: 1,
+      allItemsTotal: 5,
+      draftOrderId: 'order_123',
+    })
+  })
+
+  it('Should return draftOrderId even when no active cart exists', async () => {
+    req.body.data.cartId = null
+    queryService.graph.mockResolvedValueOnce({
+      data: [{ id: '1', prisoner_id: 'XYZ123', customer: { id: 'CUSXYZ' } }],
+    })
+    queryService.graph.mockResolvedValueOnce({ data: [] })
+    queryService.graph.mockResolvedValueOnce({
+      data: [{ id: 'order_123' }],
+    })
+
+    await POST(req, res)
+
+    expect(res.json).toHaveBeenCalledWith({
+      cartId: null,
+      items: [],
+      itemCount: 0,
+      allItemsTotal: 0,
+      draftOrderId: 'order_123',
     })
   })
 
