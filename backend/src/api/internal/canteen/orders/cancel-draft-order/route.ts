@@ -3,7 +3,7 @@ import { cancelOrderWorkflow } from '@medusajs/core-flows'
 
 /**
  * @openapi
- * /internal/canteen/orders/cancel-order:
+ * /internal/canteen/orders/cancel-draft-order:
  *   post:
  *     operationId: cancelOrder
  *     summary: Cancel Medusa Order

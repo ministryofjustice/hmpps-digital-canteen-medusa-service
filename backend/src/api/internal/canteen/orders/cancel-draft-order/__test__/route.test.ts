@@ -7,7 +7,7 @@ jest.mock('@medusajs/core-flows', () => ({
   }),
 }))
 
-describe('POST /internal/canteen/cancel-order', () => {
+describe('POST /internal/canteen/cancel-draft-order', () => {
   let req: any
   let res: any
 

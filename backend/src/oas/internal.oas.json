@@ -416,7 +416,7 @@
     }
   },
   "paths": {
-    "/internal/canteen/orders/cancel-order": {
+    "/internal/canteen/orders/cancel-draft-order": {
       "post": {
         "operationId": "cancelOrder",
         "summary": "Cancel Medusa Order",
